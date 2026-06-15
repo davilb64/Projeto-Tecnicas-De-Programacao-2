@@ -1,0 +1,19 @@
+RELATORIO DE ATIVIDADES - Leticia Pimentel Garcia
+Projeto: Sistema de Gerência de Compras e Compartilhamento de Preços
+Disciplina: Técnicas de Programação 2 - UnB - 1/2026
+
+===============================================================================================================================================================================================================================================================
+Data       | Horas | Tipo Tarefa                        | Descrição
+===============================================================================================================================================================================================================================================================
+10/06/2026 | 1h    | especificar os módulos             | Leitura e análise do backlog priorizado e definição das responsabilidades de cada membro do grupo. Identificação das estórias EU001 e EU002 como escopo do 1º sprint.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+15/06/2026 | 0,5h  | projetar                           | Definição do schema do banco de dados para suportar as estórias EU001 (cadastro de usuário) e EU002 (login). Escolha das tecnologias: PostgreSQL, Spring Data JPA, Flyway.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+15/06/2026 | 1h    | codificar módulo                   | Criação da migration V1 (V1__create_usuarios_table.sql) com a tabela 'usuarios', índice no e-mail e enum de papel. Criação da entidade JPA Usuario.java com mapeamento completo e enum Papel.java.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+15/06/2026 | 0,5h  | codificar módulo                   | Criação do UsuarioRepository.java com os métodos findByEmail (EU002) e existsByEmail (EU001). Criação do ComprasApplication.java e application.properties com configuração do PostgreSQL e Flyway.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+15/06/2026 | 1h    | redigir casos de teste             | Criação de UsuarioRepositoryTest.java com 6 casos de teste cobrindo as estórias EU001 e EU002 usando banco H2 em memória. Configuração do application-test.properties para perfil de teste.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+15/06/2026 | 0,5h  | revisar código do módulo           | Adição de IDs de rastreamento (EU001, EU002) nos comentários do código e testes. Adição de Javadoc com assertivas de entrada e saída em todos os métodos do repositório e entidade.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
