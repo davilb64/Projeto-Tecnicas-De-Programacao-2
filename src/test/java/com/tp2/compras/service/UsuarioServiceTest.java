@@ -34,7 +34,7 @@ class UsuarioServiceTest {
     @BeforeEach
     void setUp() {
         // Estado inicial dos testes
-        dtoValido = new UsuarioCadastroDTO("Davi", "davi@email.com", "senha123");
+        dtoValido = new UsuarioCadastroDTO("Romulo", "romulo@gmail.com", "senha123");
     }
 
     @Test
