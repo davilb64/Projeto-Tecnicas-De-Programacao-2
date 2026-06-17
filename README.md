@@ -63,6 +63,7 @@ Este projeto foi desenvolvido utilizando a metodologia **TDD (Test-Driven Develo
 3. Execute a classe `ComprasApplication.java`.
 
 ### Frontend
+1. Acesse o repositório: [Repositório Front-End](https://github.com/davilb64/front-tp2)
 1. Abra os arquivos `.html` diretamente em um navegador moderno (ou utilize o *Live Server* do VS Code).
 2. Certifique-se de que a URL do `fetch` no JavaScript esteja apontando para o endereço correto da API (Local ou Produção).
 
