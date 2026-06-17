@@ -1,6 +1,7 @@
 package com.tp2.compras.controller;
 
 import com.tp2.compras.dto.UsuarioCadastroDTO;
+import com.tp2.compras.dto.UsuarioLoginDTO;
 import com.tp2.compras.model.Usuario;
 import com.tp2.compras.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -9,13 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Libera o acesso para o frontend fazer requisições sem erro de CORS
 @RestController
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
 public class UsuarioController {
 
-    // Injeta a camada de serviço que acabamos de testar e construir
+    // Injeta a camada de serviço onde ficam as regras de negócio
     private final UsuarioService usuarioService;
 
     /**
@@ -24,20 +25,34 @@ public class UsuarioController {
      */
     @PostMapping("/cadastro")
     public ResponseEntity<String> cadastrar(@Valid @RequestBody UsuarioCadastroDTO dto) {
-        // A anotação @Valid obriga o Spring a checar aquelas regras que você colocou no DTO
-        // (@NotBlank, @Email) antes mesmo de entrar neste método.
+        // A anotação @Valid obriga o Spring a checar as regras colocadas no DTO antes de entrar no método
 
-        try {
-            // Repassa para o serviço processar
-            Usuario usuarioCriado = usuarioService.cadastrar(dto);
-            
-            // Retorna o status HTTP 201 (Created) em caso de sucesso
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body("Usuário " + usuarioCriado.getNome() + " cadastrado com sucesso!");
+        // Se der erro, a nossa lança a exceção personalizada
+        Usuario usuarioCriado = usuarioService.cadastrar(dto);
 
-        } catch (IllegalArgumentException e) {
-            // Se o e-mail já existir, o serviço lança esta exceção, e nós retornamos HTTP 400 (Bad Request)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+        // Retorna o status HTTP 201 (Created) em caso de sucesso
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Usuário " + usuarioCriado.getNome() + " cadastrado com sucesso!");
+    }
+
+    /**
+     * Endpoint para login de usuários.
+     * Mapeado para receber requisições POST na URL: /api/usuarios/login
+     */
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@Valid @RequestBody UsuarioLoginDTO dto) {
+        // Manda a exceção personalizada se email ou senha errados
+        usuarioService.autenticar(dto);
+
+        // Se passar direto pela autenticação sem lançar exceção, retorna 200 OK
+        return ResponseEntity.ok("Login realizado com sucesso!");
+    }
+
+    /**
+     * Endpoint para manter servidor up
+     */
+    @GetMapping("/status")
+    public ResponseEntity<String> status() {
+        return ResponseEntity.ok("Online");
     }
 }

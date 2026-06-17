@@ -16,6 +16,8 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable) // Necessário para APIs REST
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/usuarios/cadastro").permitAll() // Libera o cadastro
+                        .requestMatchers("/api/usuarios/login").permitAll() // Libera o login
+                        .requestMatchers("/api/usuarios/status").permitAll() // Libera o status
                         .anyRequest().authenticated()
                 );
         return http.build();

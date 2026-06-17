@@ -2,6 +2,7 @@ package com.tp2.compras.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tp2.compras.dto.UsuarioCadastroDTO;
+import com.tp2.compras.dto.UsuarioLoginDTO;
 import com.tp2.compras.model.Usuario;
 import com.tp2.compras.service.UsuarioService;
 import org.junit.jupiter.api.DisplayName;
@@ -82,4 +83,56 @@ public class UsuarioControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("E-mail já cadastrado no sistema."));
     }
+
+    // =========================================================
+    // TESTES DE LOGIN (TDD)
+    // =========================================================
+
+    @Test
+    @DisplayName("Deve retornar HTTP 200 (OK) ao fazer login com credenciais corretas")
+    void deveRetornar200AoLogarComSucesso() throws Exception {
+        // Arrange: Preparamos o DTO de login e ensinamos o mock a retornar 'true'
+        UsuarioLoginDTO dtoValido = new UsuarioLoginDTO("fulano@unb.br", "senhaSegura123");
+
+        when(usuarioService.autenticar(any(UsuarioLoginDTO.class))).thenReturn(true);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/usuarios/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dtoValido)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Login realizado com sucesso!"));
+    }
+
+    @Test
+    @DisplayName("Deve retornar HTTP 401 (Unauthorized) quando a senha estiver errada ou email não existir")
+    void deveRetornar401QuandoCredenciaisInvalidas() throws Exception {
+        // Arrange: DTO com dados errados. Ensinamos o mock a lançar exceção.
+        UsuarioLoginDTO dtoInvalido = new UsuarioLoginDTO("fulano@unb.br", "senhaErrada");
+
+        when(usuarioService.autenticar(any(UsuarioLoginDTO.class)))
+                .thenThrow(new IllegalArgumentException("Credenciais inválidas."));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/usuarios/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dtoInvalido)))
+                .andExpect(status().isUnauthorized()) // Status 401
+                .andExpect(content().string("Credenciais inválidas."));
+    }
+
+    @Test
+    @DisplayName("Deve retornar HTTP 400 (Bad Request) quando o DTO de login falhar na validação")
+    void deveRetornar400QuandoLoginForInvalido() throws Exception {
+        // Arrange: DTO com e-mail inválido e senha muito curta (menor que 8 caracteres)
+        UsuarioLoginDTO dtoInvalido = new UsuarioLoginDTO("email-sem-arroba", "123");
+
+        // Act & Assert: O @Valid do Controller deve bloquear antes mesmo de chamar o Service
+        mockMvc.perform(post("/api/usuarios/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dtoInvalido)))
+                .andExpect(status().isBadRequest());
+    }
 }
+
+
