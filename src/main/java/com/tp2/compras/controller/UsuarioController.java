@@ -27,7 +27,7 @@ public class UsuarioController {
     public ResponseEntity<String> cadastrar(@Valid @RequestBody UsuarioCadastroDTO dto) {
         // A anotação @Valid obriga o Spring a checar as regras colocadas no DTO antes de entrar no método
 
-        // Se der erro, a nossa lança a exceção personalizada
+        // Se der erro, lança a exceção personalizada
         Usuario usuarioCriado = usuarioService.cadastrar(dto);
 
         // Retorna o status HTTP 201 (Created) em caso de sucesso
