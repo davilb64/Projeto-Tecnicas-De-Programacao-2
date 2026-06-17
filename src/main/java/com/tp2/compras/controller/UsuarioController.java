@@ -47,4 +47,12 @@ public class UsuarioController {
         // Se passar direto pela autenticação sem lançar exceção, retorna 200 OK
         return ResponseEntity.ok("Login realizado com sucesso!");
     }
+
+    /**
+     * Endpoint para manter servidor up
+     */
+    @GetMapping("/status")
+    public ResponseEntity<String> status() {
+        return ResponseEntity.ok("Online");
+    }
 }
