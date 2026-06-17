@@ -2,6 +2,8 @@ package com.tp2.compras.service;
 
 import com.tp2.compras.dto.UsuarioCadastroDTO;
 import com.tp2.compras.dto.UsuarioLoginDTO;
+import com.tp2.compras.exception.CredenciaisInvalidasException;
+import com.tp2.compras.exception.EmailJaCadastradoException;
 import com.tp2.compras.model.Papel;
 import com.tp2.compras.model.Usuario;
 import com.tp2.compras.repository.UsuarioRepository;
@@ -35,7 +37,7 @@ public class UsuarioService {
 
         // Regra de Negócio: Validação de duplicidade
         if (usuarioRepository.existsByEmail(dto.email())) {
-            throw new IllegalArgumentException("E-mail já cadastrado no sistema.");
+            throw new EmailJaCadastradoException("E-mail já cadastrado no sistema.");
         }
 
         // Criptografia da senha usando BCrypt
@@ -62,13 +64,13 @@ public class UsuarioService {
 
         // Busca o usuário no banco. Se não achar, lança o erro genérico de segurança.
         Usuario usuario = usuarioRepository.findByEmail(dto.email())
-                .orElseThrow(() -> new IllegalArgumentException("Credenciais inválidas."));
+                .orElseThrow(() -> new CredenciaisInvalidasException("Credenciais inválidas."));
 
         // Compara a senha digitada em texto puro com o Hash salvo no banco
         boolean senhaCorreta = passwordEncoder.matches(dto.senha(), usuario.getSenhaHash());
 
         if (!senhaCorreta) {
-            throw new IllegalArgumentException("Credenciais inválidas.");
+            throw new CredenciaisInvalidasException("Credenciais inválidas.");
         }
 
         return true;
