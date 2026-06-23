@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -74,6 +76,7 @@ public class Usuario {
      * <p>Assertiva de saída: papel nunca é nulo; padrão é USUARIO ao criar conta (EU001).
      */
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(nullable = false, length = 20)
     @Builder.Default
     private Papel papel = Papel.USUARIO;
