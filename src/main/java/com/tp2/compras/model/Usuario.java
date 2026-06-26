@@ -93,8 +93,24 @@ public class Usuario {
     /**
      * Garante que criadoEm seja preenchido antes da primeira persistência.
      *
-     * <p>Assertiva de entrada: objeto ainda não persistido (id == null).
-     * <p>Assertiva de saída: criadoEm != null.
+     * <p><b>Assertiva de entrada:</b> objeto ainda não persistido (id == null);
+     * criadoEm pode ser nulo se o objeto foi construído sem o Builder.
+     *
+     * <p><b>Assertiva de saída:</b> criadoEm != null.
+     *
+     * <p><b>Argumentação da corretude:</b>
+     * <ol>
+     *   <li>A anotação {@code @PrePersist} garante que este método é chamado pelo JPA
+     *       imediatamente antes de qualquer operação INSERT no banco — nunca em UPDATEs,
+     *       pois a coluna possui {@code updatable = false}.</li>
+     *   <li>O único estado possível de criadoEm ao entrar na função é nulo (quando o objeto
+     *       foi criado via construtor padrão sem Builder) ou não-nulo (quando criado via Builder,
+     *       que já inicializa com {@code LocalDateTime.now()}).</li>
+     *   <li>A condicional {@code if (criadoEm == null)} cobre o único caso em que o campo
+     *       poderia ser persistido nulo, atribuindo o instante atual.</li>
+     *   <li>Após a execução, criadoEm é necessariamente não-nulo em ambos os ramos
+     *       (nulo → atribuído; não-nulo → mantido), satisfazendo a assertiva de saída.</li>
+     * </ol>
      */
     @PrePersist
     private void prePersist() {
