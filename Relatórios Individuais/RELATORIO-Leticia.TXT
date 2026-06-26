@@ -1,4 +1,4 @@
-RELATORIO DE ATIVIDADES - Leticia Pimentel Garcia
+﻿RELATORIO DE ATIVIDADES - Leticia Pimentel Garcia
 Projeto: Sistema de Gerência de Compras e Compartilhamento de Preços
 Disciplina: Técnicas de Programação 2 - UnB - 1/2026
 
