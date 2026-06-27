@@ -13,6 +13,12 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Entidade que representa um usuário do sistema de compras.
  *
@@ -28,7 +34,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Usuario {
+public class Usuario implements UserDetails {
 
     /**
      * Identificador único do usuário, gerado automaticamente pelo banco.
@@ -117,5 +123,91 @@ public class Usuario {
         if (criadoEm == null) {
             criadoEm = LocalDateTime.now();
         }
+    }
+
+    // =========================================================
+    // MÉTODOS OBRIGATÓRIOS DA INTERFACE UserDetails
+    // =========================================================
+
+    /**
+     * Retorna os privilégios (roles) concedidos ao usuário. Essencial para o controle
+     * de acesso baseado em rotas do Spring Security.
+     *
+     * <p><b>Assertiva de saída:</b> retorna uma coleção não nula contendo exatamente um
+     * objeto do tipo SimpleGrantedAuthority correspondente ao papel do usuário.
+     *
+     * <p><b>Argumentação da corretude:</b>
+     * O Spring Security utiliza o prefixo "ROLE_" por padrão para identificar regras de autorização
+     * (ex: hasRole('USUARIO')). Ao concatenar "ROLE_" com o nome da constante do enum Papel
+     * (que é garantido de não ser nulo), garantimos compatibilidade nativa com os filtros de segurança.
+     */
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.papel.name()));
+    }
+
+    /**
+     * Informa ao framework qual atributo interno da entidade armazena a credencial (senha).
+     *
+     * <p><b>Assertiva de saída:</b> retorna o atributo {@code senhaHash}.
+     */
+    @Override
+    public String getPassword() {
+        return this.senhaHash;
+    }
+
+    /**
+     * Informa ao framework qual atributo da entidade é utilizado como nome de usuário
+     * no processo de autenticação.
+     *
+     * <p><b>Assertiva de saída:</b> retorna o valor de {@code email} (satisfazendo o requisito EU002).
+     */
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    /**
+     * Indica se a conta do usuário está expirada.
+     *
+     * <p><b>Assertiva de saída:</b> retorna {@code true}. Como o sistema atual não possui política
+     * de expiração de contas, todas as contas são consideradas não expiradas por padrão.
+     */
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    /**
+     * Indica se a conta do usuário está bloqueada.
+     *
+     * <p><b>Assertiva de saída:</b> retorna {@code true}. Como o sistema atual não implementa
+     * bloqueio temporário (ex: erro excessivo de tentativas de login), nenhuma conta é bloqueada.
+     */
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    /**
+     * Indica se a credencial (senha) do usuário expirou.
+     *
+     * <p><b>Assertiva de saída:</b> retorna {@code true}. Como o sistema atual não obriga
+     * a rotação de senhas, as credenciais não expiram.
+     */
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    /**
+     * Indica se o usuário está habilitado no sistema.
+     *
+     * <p><b>Assertiva de saída:</b> retorna {@code true}. Como o sistema atual não possui soft-delete
+     * (inativação lógica), todos os registros persistidos são considerados habilitados.
+     */
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
