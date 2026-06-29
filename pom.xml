@@ -71,6 +71,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Biblioteca Auth0 para gerar e validar o JWT -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+
         <!-- ===== DEPENDÊNCIAS DE TESTE ===== -->
 
         <!-- Spring Boot Test -->
@@ -94,6 +101,8 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+
 
     <build>
         <plugins>

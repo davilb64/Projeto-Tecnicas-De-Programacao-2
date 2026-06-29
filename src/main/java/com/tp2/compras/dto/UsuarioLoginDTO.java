@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+
 /* 
 Data Transfer Object (DTO) 
 Objeto simples que contém apenas o que o usuário vai enviar no formulário: email e senha. 
