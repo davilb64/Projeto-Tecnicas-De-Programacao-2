@@ -2,6 +2,8 @@ package com.tp2.compras.service;
 
 import com.tp2.compras.dto.UsuarioCadastroDTO;
 import com.tp2.compras.dto.UsuarioLoginDTO;
+import com.tp2.compras.dto.UsuarioResponseDTO;
+import com.tp2.compras.dto.UsuarioUpdateDTO;
 import com.tp2.compras.exception.CredenciaisInvalidasException;
 import com.tp2.compras.exception.EmailJaCadastradoException;
 import com.tp2.compras.model.Papel;
@@ -22,14 +24,30 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * Realiza o cadastro de um novo usuário comum no sistema.
-     * * Pré-condições (Assertivas de Entrada):
-     * 1. dto não pode ser nulo.
-     * 2. e-mail não pode estar previamente cadastrado no banco.
-     * * Pós-condições (Assertivas de Saída):
-     * 1. Retorna a entidade Usuario persistida com ID gerado.
-     * 2. A senha é armazenada apenas em formato Hash irreversível.
-     */
+     * Realiza o cadastro de um novo usuário comum no sistema garantindo a criptografia dos dados de acesso.
+     *
+     * <p>Rastreamento de requisitos:
+     * <ul>
+     * <li>EU001 - Eu como usuário quero poder criar uma conta no site para poder interagir.</li>
+     * </ul>
+     *
+     * <p>Pré-condições (Assertivas de Entrada):
+     * <ul>
+     * <li>O objeto {@code dto} não pode ser nulo.</li>
+     * <li>O e-mail informado não pode estar previamente cadastrado no banco de dados.</li>
+     * </ul>
+     *
+     * <p>Pós-condições (Assertivas de Saída):
+     * <ul>
+     * <li>Retorna a entidade {@link Usuario} devidamente persistida com a alocação de ID gerado.</li>
+     * <li>A senha em texto plano é destruída e armazenada apenas em formato Hash irreversível (BCrypt).</li>
+     * <li>O papel de acesso (Role) é definido estritamente como {@code Papel.USUARIO} por padrão estrutural.</li>
+     * </ul>
+     *
+     * @param dto objeto de transferência contendo os dados brutos de cadastro (nome, e-mail e senha).
+     * @return Entidade {@code Usuario} recém-criada e gravada no banco de dados.
+     * @throws EmailJaCadastradoException se houver violação da regra de negócio estrutural (e-mail duplicado).
+    */
     @Transactional
     public Usuario cadastrar(UsuarioCadastroDTO dto) {
         // Assertiva estrutural de entrada
@@ -56,9 +74,27 @@ public class UsuarioService {
     }
 
     /**
-     * Realiza a autenticação do usuário para o Login.
-     * Retorna true se sucesso, ou lança exceção se as credenciais estiverem erradas.
-     */
+     * Realiza a autenticação do usuário para o Login verificando as credenciais.
+     *
+     * <p>Rastreamento de requisitos:
+     * <ul>
+     * <li>EU002 - Eu como usuário quero poder fazer login no site se já possuo uma conta.</li>
+     * </ul>
+     *
+     * <p>Pré-condições (Assertivas de Entrada):
+     * <ul>
+     * <li>O objeto {@code dto} recebido não pode ser nulo.</li>
+     * </ul>
+     *
+     * <p>Pós-condições (Assertivas de Saída):
+     * <ul>
+     * <li>Retorna {@code true} exclusivamente se as credenciais forem válidas e a comparação matemática do hash corresponder.</li>
+     * </ul>
+     *
+     * @param dto objeto envelopado contendo as credenciais de acesso (e-mail e senha) fornecidas pelo usuário.
+     * @return {@code true} caso a autenticação no banco seja bem-sucedida.
+     * @throws CredenciaisInvalidasException se o e-mail não for encontrado ou se a senha estiver incorreta.
+    */
     public boolean autenticar(UsuarioLoginDTO dto) {
         Assert.notNull(dto, "O objeto de login não pode ser nulo");
 
@@ -74,5 +110,71 @@ public class UsuarioService {
         }
 
         return true;
+    }
+
+    /**
+     * Busca um usuário específico pelo seu identificador único.
+     *
+     * <p>Rastreamento de requisitos:
+     * <ul>
+     * <li>EU001 - Eu como usuário/admin quero visualizar os dados da minha conta.</li>
+     * </ul>
+     *
+     * @param id identificador do usuário no banco de dados.
+     * @return UsuarioResponseDTO contendo os dados seguros do usuário.
+     */
+    public UsuarioResponseDTO buscarPorId(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+        
+        return UsuarioResponseDTO.daEntidade(usuario);
+    }
+
+    /**
+     * Atualiza os dados cadastrais permitidos de um usuário.
+     *
+     * <p>Rastreamento de requisitos:
+     * <ul>
+     * <li>EU001 - Eu como usuário/admin quero poder editar as informações da minha conta.</li>
+     * </ul>
+     *
+     * @param id identificador do usuário a ser atualizado.
+     * @param dto objeto contendo os novos dados preenchidos.
+     * @return UsuarioResponseDTO com o estado atualizado do usuário.
+     */
+    @Transactional
+    public UsuarioResponseDTO atualizar(Long id, UsuarioUpdateDTO dto) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+
+        // Se o nome foi enviado e não está vazio, atualiza
+        if (dto.nome() != null && !dto.nome().isBlank()) {
+            usuario.setNome(dto.nome());
+        }
+        
+        // Se a senha foi enviada, fazemos o hash antes de salvar
+        if (dto.senha() != null && !dto.senha().isBlank()) {
+            usuario.setSenhaHash(passwordEncoder.encode(dto.senha()));
+        }
+
+        return UsuarioResponseDTO.daEntidade(usuarioRepository.save(usuario));
+    }
+
+    /**
+     * Remove fisicamente um usuário do sistema.
+     *
+     * <p>Rastreamento de requisitos:
+     * <ul>
+     * <li>EU001 - Eu como usuário/admin quero poder deletar a minha conta do sistema.</li>
+     * </ul>
+     *
+     * @param id identificador do usuário a ser removido.
+     */
+    @Transactional
+    public void deletar(Long id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new IllegalArgumentException("Usuário não encontrado para deleção.");
+        }
+        usuarioRepository.deleteById(id);
     }
 }
