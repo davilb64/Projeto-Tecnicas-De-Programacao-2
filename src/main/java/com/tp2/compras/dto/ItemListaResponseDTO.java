@@ -5,6 +5,7 @@ import com.tp2.compras.model.ItemLista;
 public record ItemListaResponseDTO(
         Long id,
         Long variacaoId,
+        String nomeProduto,
         String descricaoVariacao,
         Integer quantidade,
         Boolean comprado
@@ -13,6 +14,7 @@ public record ItemListaResponseDTO(
         return new ItemListaResponseDTO(
                 item.getId(),
                 item.getVariacao().getId(),
+                item.getVariacao().getProduto().getNome(),
                 item.getVariacao().getDescricao(),
                 item.getQuantidade(),
                 item.getComprado()

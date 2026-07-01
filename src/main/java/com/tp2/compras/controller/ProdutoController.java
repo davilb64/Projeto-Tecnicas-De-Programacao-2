@@ -70,6 +70,25 @@ public class ProdutoController {
         }
     }
 
+    /**
+     * Endpoint para o Administrador aprovar ou rejeitar um produto pendente.
+     *
+     * <p><b>Assertiva de entrada:</b> id do produto não nulo e string de status válida (APROVADO, REJEITADO).
+     * <p><b>Assertiva de saída:</b> retorna status HTTP 200 (OK) se a atualização for bem-sucedida.
+     */
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<String> alterarStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+        try {
+            produtoService.alterarStatus(id, status);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            // Em caso de produto não encontrado ou status inválido
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarProduto(@PathVariable Long id) {
         try {

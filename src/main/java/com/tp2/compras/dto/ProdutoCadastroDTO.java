@@ -19,5 +19,8 @@ public record ProdutoCadastroDTO(
         String categoria,
 
         // ID do usuário que está logado e enviando o produto
-        Long criadoPorId
+        Long criadoPorId,
+        String variacaoDescricao,
+        Double variacaoPeso,
+        String variacaoUnidade
 ) {}

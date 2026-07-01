@@ -1,9 +1,11 @@
 package com.tp2.compras.controller;
 
+import com.tp2.compras.dto.ComparacaoMercadoDTO;
 import com.tp2.compras.dto.ItemListaAdicionarDTO;
 import com.tp2.compras.dto.ListaComprasCadastroDTO;
 import com.tp2.compras.dto.ListaComprasResponseDTO;
 import com.tp2.compras.model.ListaCompras;
+import com.tp2.compras.service.ComparacaoService;
 import com.tp2.compras.service.ListaComprasService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.List;
 public class ListaComprasController {
 
     private final ListaComprasService listaService;
+    private final ComparacaoService comparacaoService;
 
     @PostMapping
     public ResponseEntity<String> criarLista(@Valid @RequestBody ListaComprasCadastroDTO dto) {
@@ -75,6 +78,16 @@ public class ListaComprasController {
         try {
             listaService.deletarLista(listaId);
             return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{listaId}/comparacao")
+    public ResponseEntity<List<ComparacaoMercadoDTO>> compararMercados(@PathVariable Long listaId) {
+        try {
+            List<ComparacaoMercadoDTO> comparacoes = comparacaoService.compararListaNosMercados(listaId);
+            return ResponseEntity.ok(comparacoes);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }

@@ -28,17 +28,6 @@ public class ListaComprasService {
     private final UsuarioRepository usuarioRepository;
     private final VariacaoProdutoRepository variacaoRepository;
 
-    /**
-     * Cria uma nova lista de compras vazia para o usuário.
-     *
-     * <p>Rastreamento de requisitos:
-     * <ul>
-     * <li>EU008 - Eu como usuário quero poder criar listas de compras.</li>
-     * </ul>
-     *
-     * <p><b>Argumentação da corretude:</b>
-     * Valida a existência do usuário e gera uma lista associada à sua PK.
-     */
     @Transactional
     public ListaCompras cadastrarLista(ListaComprasCadastroDTO dto) {
         Assert.notNull(dto, "O DTO da lista não pode ser nulo");
@@ -60,41 +49,29 @@ public class ListaComprasService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Adiciona um item (variação de produto) dentro de uma lista existente.
-     *
-     * <p><b>Argumentação da corretude:</b>
-     * O repositório verifica duplicatas compostas por lista_id e variacao_id[cite: 17].
-     * Se o item já estiver na lista, lança exceção para não ferir a constraint do banco.
-     */
     @Transactional
     public ListaComprasResponseDTO adicionarItem(Long listaId, ItemListaAdicionarDTO dto) {
-        Assert.notNull(dto, "O DTO do item não pode ser nulo");
+        ListaCompras lista = listaRepository.findById(listaId).orElseThrow();
+        VariacaoProduto variacao = variacaoRepository.findById(dto.variacaoId()).orElseThrow();
 
-        ListaCompras lista = listaRepository.findById(listaId)
-                .orElseThrow(() -> new IllegalArgumentException("Lista não encontrada."));
+        ItemLista itemExistente = lista.getItens().stream()
+                .filter(i -> i.getVariacao().getId().equals(variacao.getId()))
+                .findFirst().orElse(null);
 
-        VariacaoProduto variacao = variacaoRepository.findById(dto.variacaoId())
-                .orElseThrow(() -> new IllegalArgumentException("Variação do produto não encontrada."));
-
-        if (itemRepository.existsByListaIdAndVariacaoId(listaId, variacao.getId())) {
-            throw new IllegalArgumentException("Este produto já está na sua lista.");
+        if (itemExistente != null) {
+            itemExistente.setQuantidade(itemExistente.getQuantidade() + dto.quantidade());
+        } else {
+            ItemLista novoItem = ItemLista.builder()
+                    .lista(lista)
+                    .variacao(variacao)
+                    .quantidade(dto.quantidade())
+                    .comprado(false)
+                    .build();
+            lista.getItens().add(novoItem);
         }
-
-        ItemLista novoItem = ItemLista.builder()
-                .lista(lista)
-                .variacao(variacao)
-                .quantidade(dto.quantidade())
-                .comprado(false) // Padrão conforme a Entidade[cite: 20]
-                .build();
-
-        lista.getItens().add(novoItem);
         return ListaComprasResponseDTO.daEntidade(listaRepository.save(lista));
     }
 
-    /**
-     * Alterna o status de "comprado" do item na hora que o usuário está no mercado.
-     */
     @Transactional
     public void alternarStatusComprado(Long itemId) {
         ItemLista item = itemRepository.findById(itemId)
