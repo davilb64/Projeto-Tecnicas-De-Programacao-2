@@ -1,9 +1,6 @@
 package com.tp2.compras.controller;
 
-import com.tp2.compras.dto.UsuarioCadastroDTO;
-import com.tp2.compras.dto.UsuarioLoginDTO;
-import com.tp2.compras.dto.UsuarioResponseDTO;
-import com.tp2.compras.dto.UsuarioUpdateDTO;
+import com.tp2.compras.dto.*;
 import com.tp2.compras.model.Usuario;
 import com.tp2.compras.service.UsuarioService;
 
@@ -71,20 +68,21 @@ public class UsuarioController {
      * </ol>
      */
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody UsuarioLoginDTO dto) {
-
-        // 1. Cria o token bruto de verificação com os dados que vieram do formulário
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody UsuarioLoginDTO dto) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(dto.email(), dto.senha());
-
-        // 2. Dispara o mecanismo de autenticação do Spring Security
         Authentication auth = this.authenticationManager.authenticate(usernamePassword);
 
-        // 3. Recupera o usuário validado e gera o JWT
         Usuario usuarioValidado = (Usuario) auth.getPrincipal();
         String tokenJwt = tokenService.gerarToken(usuarioValidado);
 
-        // 4. Retorna a chave gerada (o frontend fará o localStorage.setItem com ela)
-        return ResponseEntity.ok(tokenJwt);
+        LoginResponseDTO response = new LoginResponseDTO(
+                tokenJwt,
+                usuarioValidado.getEmail(),
+                usuarioValidado.getPapel(),
+                usuarioValidado.getId()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     /**

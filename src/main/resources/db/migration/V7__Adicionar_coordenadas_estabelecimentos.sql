@@ -1,0 +1,5 @@
+-- Migration V7: Adicionando geolocalização aos mercados
+
+ALTER TABLE estabelecimentos
+    ADD COLUMN latitude NUMERIC(10, 7),
+    ADD COLUMN longitude NUMERIC(10, 7);
