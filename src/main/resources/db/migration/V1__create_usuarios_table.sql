@@ -5,12 +5,12 @@
 CREATE TYPE papel_enum AS ENUM ('USUARIO', 'ADMINISTRADOR');
 
 CREATE TABLE usuarios (
-    id          BIGSERIAL       PRIMARY KEY,
-    nome        VARCHAR(100)    NOT NULL,
-    email       VARCHAR(150)    NOT NULL UNIQUE,
-    senha_hash  VARCHAR(255)    NOT NULL,
-    papel       papel_enum      NOT NULL DEFAULT 'USUARIO',
-    criado_em   TIMESTAMP       NOT NULL DEFAULT NOW()
+                          id          BIGSERIAL       PRIMARY KEY,
+                          nome        VARCHAR(100)    NOT NULL,
+                          email       VARCHAR(150)    NOT NULL UNIQUE,
+                          senha_hash  VARCHAR(255)    NOT NULL,
+                          papel       papel_enum      NOT NULL DEFAULT 'USUARIO',
+                          criado_em   TIMESTAMP       NOT NULL DEFAULT NOW()
 );
 
 -- Índice para buscas por e-mail no login
