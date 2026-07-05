@@ -20,11 +20,11 @@ public class EstabelecimentoService {
     private final EstabelecimentoRepository estabelecimentoRepository;
 
     /**
-     * Cadastra um novo estabelecimento comercial.
+     * Cadastra um novo estabelecimento comercial de forma direta (Ação de Administrador).
      *
      * <p>Rastreamento de requisitos:
      * <ul>
-     * <li>EU003 - Eu como usuário/admin quero poder criar estabelecimentos.</li>
+     * <li>EU003 - Eu como admin quero poder criar estabelecimentos diretamente.</li>
      * </ul>
      *
      * <p>Pré-condições (Assertivas de Entrada):
@@ -35,7 +35,7 @@ public class EstabelecimentoService {
      *
      * <p>Pós-condições (Assertivas de Saída):
      * <ul>
-     * <li>Retorna a entidade devidamente persistida e com ID alocado.</li>
+     * <li>Retorna a entidade devidamente persistida, com ID alocado e aprovado = true.</li>
      * </ul>
      */
     @Transactional
@@ -44,15 +44,64 @@ public class EstabelecimentoService {
 
         // Regra de Negócio: Evitar mercados duplicados com o mesmo nome exato
         if (estabelecimentoRepository.existsByNomeIgnoreCase(dto.nome())) {
-            throw new IllegalArgumentException("Já existe um estabelecimento cadastrado com este nome.");
+            throw new IllegalArgumentException("Já existe um estabelecimento cadastrado ou sugerido com este nome.");
         }
 
         Estabelecimento novo = Estabelecimento.builder()
                 .nome(dto.nome())
                 .endereco(dto.endereco())
+                .latitude(dto.latitude())
+                .longitude(dto.longitude())
+                .aprovado(true)
                 .build();
 
         return estabelecimentoRepository.save(novo);
+    }
+
+    /**
+     * Recebe uma sugestão de estabelecimento feita por um usuário comum.
+     *
+     * <p>Pós-condições (Assertivas de Saída):
+     * <ul>
+     * <li>Retorna o DTO salvo no banco de dados com a flag aprovado = false.</li>
+     * </ul>
+     */
+    @Transactional
+    public EstabelecimentoResponseDTO solicitar(EstabelecimentoCadastroDTO dto) {
+        Assert.notNull(dto, "O DTO de solicitação não pode ser nulo");
+
+        if (estabelecimentoRepository.existsByNomeIgnoreCase(dto.nome())) {
+            throw new IllegalArgumentException("Este mercado já existe no sistema ou está na fila de aprovação.");
+        }
+
+        Estabelecimento novo = Estabelecimento.builder()
+                .nome(dto.nome())
+                .endereco(dto.endereco())
+                .aprovado(false) // Fica aguardando auditoria do Admin
+                .build();
+
+        return EstabelecimentoResponseDTO.daEntidade(estabelecimentoRepository.save(novo));
+    }
+
+    /**
+     * Busca os estabelecimentos que estão na fila de auditoria.
+     */
+    public List<EstabelecimentoResponseDTO> buscarPendentes() {
+        return estabelecimentoRepository.findByAprovadoFalse().stream()
+                .map(EstabelecimentoResponseDTO::daEntidade)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Aprova um estabelecimento pendente para o catálogo oficial.
+     */
+    @Transactional
+    public void aprovar(Long id) {
+        Estabelecimento estabelecimento = estabelecimentoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada."));
+
+        estabelecimento.setAprovado(true);
+        estabelecimentoRepository.save(estabelecimento);
     }
 
     public EstabelecimentoResponseDTO buscarPorId(Long id) {
@@ -62,18 +111,18 @@ public class EstabelecimentoService {
     }
 
     /**
-     * Lista estabelecimentos, permitindo busca opcional por trecho do nome (EU007).
+     * Lista estabelecimentos do CATÁLOGO OFICIAL (aprovado = true), permitindo busca parcial (EU007).
      *
      * <p><b>Argumentação da corretude:</b>
-     * Se o nome for fornecido, delega para a consulta parcial ignorando caixa (findByNomeContainingIgnoreCase).
-     * Caso contrário, retorna todos (findAll). O resultado é sempre mapeado de forma segura para DTOs.
+     * Se o nome for fornecido, delega para a consulta parcial validada.
+     * Caso contrário, retorna todos os aprovados. Filtra para nunca exibir sugestões pendentes.
      */
     public List<EstabelecimentoResponseDTO> listar(String nomeBusca) {
         List<Estabelecimento> resultados;
         if (nomeBusca != null && !nomeBusca.isBlank()) {
-            resultados = estabelecimentoRepository.findByNomeContainingIgnoreCase(nomeBusca);
+            resultados = estabelecimentoRepository.findByNomeContainingIgnoreCaseAndAprovadoTrue(nomeBusca);
         } else {
-            resultados = estabelecimentoRepository.findAll();
+            resultados = estabelecimentoRepository.findByAprovadoTrue();
         }
 
         return resultados.stream()
@@ -87,7 +136,6 @@ public class EstabelecimentoService {
                 .orElseThrow(() -> new IllegalArgumentException("Estabelecimento não encontrado."));
 
         if (dto.nome() != null && !dto.nome().isBlank()) {
-            // Verifica se o novo nome já não pertence a outro mercado
             if (!estabelecimento.getNome().equalsIgnoreCase(dto.nome()) &&
                     estabelecimentoRepository.existsByNomeIgnoreCase(dto.nome())) {
                 throw new IllegalArgumentException("Já existe outro estabelecimento com este nome.");

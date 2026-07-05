@@ -27,7 +27,7 @@ class EstabelecimentoServiceTest {
     @DisplayName("Deve cadastrar um estabelecimento com sucesso")
     void deveCadastrarEstabelecimento() {
         // 1. Prepara os dados falsos (Mock)
-        EstabelecimentoCadastroDTO dto = new EstabelecimentoCadastroDTO("Supermercado Extra", "Rua A");
+        EstabelecimentoCadastroDTO dto = new EstabelecimentoCadastroDTO("Supermercado Extra", "Rua X", null, null);
 
         // Simula que o banco respondeu que NÃO existe mercado com esse nome
         when(repository.existsByNomeIgnoreCase("Supermercado Extra")).thenReturn(false);
@@ -51,7 +51,7 @@ class EstabelecimentoServiceTest {
     @DisplayName("Deve bloquear cadastro de estabelecimento com nome duplicado")
     void deveBloquearNomeDuplicado() {
         // 1. Prepara os dados
-        EstabelecimentoCadastroDTO dto = new EstabelecimentoCadastroDTO("Carrefour", "Rua B");
+        EstabelecimentoCadastroDTO dto = new EstabelecimentoCadastroDTO("Supermercado Extra", "Rua X", null, null);
 
         // Simula que o banco respondeu que JÁ EXISTE mercado com esse nome
         when(repository.existsByNomeIgnoreCase("Carrefour")).thenReturn(true);

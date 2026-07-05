@@ -62,6 +62,14 @@ public class Estabelecimento {
     private BigDecimal longitude;
 
     /**
+     * Flag que indica se o mercado foi validado pelo Admin.
+     * Sugestões de usuários entram como false.
+     */
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean aprovado = false;
+
+    /**
      * Data e hora de criação do registro.
      *
      * <p>Assertiva de saída: criadoEm != null após persistência.

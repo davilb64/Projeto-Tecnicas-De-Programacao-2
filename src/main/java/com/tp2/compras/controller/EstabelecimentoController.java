@@ -22,7 +22,16 @@ public class EstabelecimentoController {
     private final EstabelecimentoService estabelecimentoService;
 
     /**
-     * Endpoint para cadastro de estabelecimentos (EU003).
+     * Endpoint para cadastro DIRETO de estabelecimentos (Admin)
+     * Responde ao POST na raiz: /api/estabelecimentos
+     */
+    @PostMapping
+    public ResponseEntity<String> cadastrarDireto(@Valid @RequestBody EstabelecimentoCadastroDTO dto) {
+        return cadastrar(dto);
+    }
+
+    /**
+     * Endpoint legado para cadastro
      */
     @PostMapping("/cadastro")
     public ResponseEntity<String> cadastrar(@Valid @RequestBody EstabelecimentoCadastroDTO dto) {
@@ -35,6 +44,41 @@ public class EstabelecimentoController {
         }
     }
 
+    /**
+     *  Endpoint para o usuário comum sugerir um novo mercado
+     */
+    @PostMapping("/solicitar")
+    public ResponseEntity<String> solicitarMercado(@Valid @RequestBody EstabelecimentoCadastroDTO dto) {
+        try {
+            estabelecimentoService.solicitar(dto); // Deve salvar com aprovado = false
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Sugestão enviada com sucesso!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+
+    /**
+     * Buscar apenas os mercados que aguardam aprovação (Admin)
+     */
+    @GetMapping("/pendentes")
+    public ResponseEntity<List<EstabelecimentoResponseDTO>> buscarPendentes() {
+        return ResponseEntity.ok(estabelecimentoService.buscarPendentes());
+    }
+
+    /**
+     * O Admin aprova a sugestão de um mercado
+     */
+    @PatchMapping("/{id}/aprovar")
+    public ResponseEntity<Void> aprovarMercado(@PathVariable Long id) {
+        try {
+            estabelecimentoService.aprovar(id);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<EstabelecimentoResponseDTO> buscar(@PathVariable Long id) {
         try {
@@ -44,10 +88,6 @@ public class EstabelecimentoController {
         }
     }
 
-    /**
-     * Endpoint para listar os estabelecimentos (EU007).
-     * Permite o uso de Query Param para filtrar: /api/estabelecimentos?nome=Carrefour
-     */
     @GetMapping
     public ResponseEntity<List<EstabelecimentoResponseDTO>> listar(
             @RequestParam(required = false) String nome) {
