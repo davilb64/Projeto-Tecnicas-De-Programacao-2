@@ -10,8 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 /**
  * Entidade que representa um produto genérico no sistema.
@@ -97,7 +95,6 @@ public class Produto {
    * <p>Assertiva de saída: status nunca é nulo; padrão PENDENTE ao ser criado por usuário.
    */
   @Enumerated(EnumType.STRING)
-  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(nullable = false, length = 20)
   @Builder.Default
     private StatusProduto status = StatusProduto.PENDENTE;

@@ -54,14 +54,14 @@ class EstabelecimentoServiceTest {
         EstabelecimentoCadastroDTO dto = new EstabelecimentoCadastroDTO("Supermercado Extra", "Rua X", null, null);
 
         // Simula que o banco respondeu que JÁ EXISTE mercado com esse nome
-        when(repository.existsByNomeIgnoreCase("Carrefour")).thenReturn(true);
+        when(repository.existsByNomeIgnoreCase("Supermercado Extra")).thenReturn(true);
 
         // 2 e 3. Executa a ação e verifica se a Exceção foi lançada
         IllegalArgumentException erro = assertThrows(IllegalArgumentException.class, () -> {
             service.cadastrar(dto);
         });
 
-        assertEquals("Já existe um estabelecimento cadastrado com este nome.", erro.getMessage());
+        assertEquals("Já existe um estabelecimento cadastrado ou sugerido com este nome.", erro.getMessage());
 
         // Garante que o método save() NUNCA foi chamado, protegendo o banco
         verify(repository, never()).save(any(Estabelecimento.class));

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -43,15 +44,13 @@ public class UsuarioController {
    */
   @PostMapping("/cadastro")
     public ResponseEntity<String> cadastrar(@Valid @RequestBody UsuarioCadastroDTO dto) {
-    // A anotação @Valid obriga o Spring a checar as regras
-    // colocadas no DTO antes de entrar no método
-
-    // Se der erro, lança a exceção personalizada
-    Usuario usuarioCriado = usuarioService.cadastrar(dto);
-
-    // Retorna o status HTTP 201 (Created) em caso de sucesso
-    return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Usuário " + usuarioCriado.getNome() + " cadastrado com sucesso!");
+    try {
+      Usuario usuarioCriado = usuarioService.cadastrar(dto);
+      return ResponseEntity.status(HttpStatus.CREATED)
+                  .body("Usuário " + usuarioCriado.getNome() + " cadastrado com sucesso!");
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
   }
 
   /**
@@ -78,21 +77,25 @@ public class UsuarioController {
    * </ol>
    */
   @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody UsuarioLoginDTO dto) {
-    var usernamePassword = new UsernamePasswordAuthenticationToken(dto.email(), dto.senha());
-    Authentication auth = this.authenticationManager.authenticate(usernamePassword);
+    public ResponseEntity<?> login(@Valid @RequestBody UsuarioLoginDTO dto) {
+    try {
+      var usernamePassword = new UsernamePasswordAuthenticationToken(dto.email(), dto.senha());
+      Authentication auth = this.authenticationManager.authenticate(usernamePassword);
 
-    Usuario usuarioValidado = (Usuario) auth.getPrincipal();
-    String tokenJwt = tokenService.gerarToken(usuarioValidado);
+      Usuario usuarioValidado = (Usuario) auth.getPrincipal();
+      String tokenJwt = tokenService.gerarToken(usuarioValidado);
 
-    LoginResponseDTO response = new LoginResponseDTO(
-                tokenJwt,
-                usuarioValidado.getEmail(),
-                usuarioValidado.getPapel(),
-                usuarioValidado.getId()
-        );
+      LoginResponseDTO response = new LoginResponseDTO(
+                  tokenJwt,
+                  usuarioValidado.getEmail(),
+                  usuarioValidado.getPapel(),
+                  usuarioValidado.getId()
+          );
 
-    return ResponseEntity.ok(response);
+      return ResponseEntity.ok(response);
+    } catch (BadCredentialsException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas.");
+    }
   }
 
   /**
