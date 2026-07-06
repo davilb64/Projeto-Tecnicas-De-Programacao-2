@@ -1,5 +1,9 @@
 -- Migration V4: Tabela de variações de produto
--- EU006: Eu como admin quero agrupar variações de um mesmo produto (Peso/Tamanho).
+-- EU006: Eu como usuário/admin quero iniciar o cadastro pelo código de barras.
+-- EU007: Eu como usuário/admin quero receber aviso se o produto já existe.
+-- RQ015: Cada variação possui código de barras único (UNIQUE em codigo_barras).
+-- RQ016: O sistema deve permitir busca de variação por código de barras (índice idx_variacoes_codigo_barras).
+-- RQ017: O sistema deve detectar duplicata de variação pelo código de barras antes de persistir.
 -- Cada variação representa um SKU específico (ex: "Arroz 1kg", "Arroz 5kg") do mesmo produto pai.
 
 CREATE TABLE variacoes_produto (

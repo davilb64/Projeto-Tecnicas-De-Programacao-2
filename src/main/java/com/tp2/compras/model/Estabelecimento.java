@@ -17,7 +17,14 @@ import lombok.NoArgsConstructor;
  *
  * <p>Rastreamento de requisitos:
  * <ul>
- *   <li>EU003 - Eu como usuário/admin quero poder criar, editar e deletar estabelecimentos.</li>
+ *   <li>EU004 - Eu como administrador quero poder adicionar novos estabelecimentos.</li>
+ * </ul>
+ *
+ * <p>Requisitos implementados:
+ * <ul>
+ *   <li>RQ010 - Estabelecimento com nome, endereço, geolocalização e flag de aprovação.</li>
+ *   <li>RQ018 - Nome único detectado via existsByNome() antes de persistir.</li>
+ *   <li>RQ026 - Busca por nome parcial via findByNomeContaining().</li>
  * </ul>
  */
 @Entity

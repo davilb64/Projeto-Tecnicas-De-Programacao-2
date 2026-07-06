@@ -1,0 +1,238 @@
+RASTREAMENTO DE REQUISITOS — NÍVEL RQ
+Sistema de Gerência de Compras e Compartilhamento de Preços
+Técnicas de Programação 2 - UnB - 1/2026
+Trabalho 4 — Item (b)
+Data: 06/07/2026
+======================================================================
+
+METODOLOGIA
+----------------------------------------------------------------------
+Cada Estória de Usuário (EU) foi decomposta em Requisitos funcionais
+finos com código "RQ" único. As tags RQ estão presentes em:
+  - Comentários das migrations SQL (banco de dados)
+  - Javadoc das entidades JPA (model)
+  - Javadoc dos repositórios (repository)
+  - Javadoc dos serviços (service)
+  - Javadoc dos controllers (controller)
+  - Javadoc dos testes (test)
+
+Para localizar um requisito no código: buscar a string "RQ<número>"
+em qualquer arquivo do projeto (ex: grep -r "RQ017" src/).
+
+======================================================================
+TABELA DE REQUISITOS
+======================================================================
+
+----------------------------------------------------------------------
+EU001 - Eu como usuário quero poder criar uma conta no site.
+----------------------------------------------------------------------
+RQ001 | O sistema deve permitir o cadastro de novo usuário informando
+      | nome, email e senha.
+      | Código:    model/Usuario.java, service/UsuarioService.cadastrar()
+      | Controller: POST /api/usuarios/cadastro
+      | BD:        V1 — tabela usuarios (nome, email, senha_hash)
+      | Teste:     UsuarioRepositoryTest.deveSalvarNovoUsuario()
+      |            UsuarioServiceTest.deveCadastrarUsuarioComSucesso()
+
+RQ002 | O email deve ser único no sistema.
+      | Código:    model/Usuario.java (@Column unique=true)
+      | Repositório: UsuarioRepository.existsByEmail()
+      | BD:        V1 — UNIQUE email, INDEX idx_usuarios_email
+      | Teste:     UsuarioRepositoryTest.deveRejeitarEmailDuplicado()
+      |            UsuarioRepositoryTest.deveDetectarEmailJaExistente()
+      |            UsuarioServiceTest.deveRejeitarEmailJaCadastrado()
+
+RQ003 | A senha deve ser armazenada como hash BCrypt, nunca em texto plano.
+      | Código:    model/Usuario.java (campo senhaHash)
+      | Service:   UsuarioService.cadastrar() — passwordEncoder.encode()
+      | BD:        V1 — coluna senha_hash VARCHAR(255)
+      | Teste:     UsuarioServiceTest.deveCadastrarUsuarioComSucesso()
+
+RQ004 | O papel padrão do usuário deve ser USUARIO ao se cadastrar.
+      | Código:    model/Usuario.java (@Builder.Default papel = Papel.USUARIO)
+      | Service:   UsuarioService.cadastrar() — .papel(Papel.USUARIO)
+      | BD:        V1 — papel papel_enum DEFAULT 'USUARIO'
+      | Teste:     UsuarioRepositoryTest.deveSalvarNovoUsuario()
+
+----------------------------------------------------------------------
+EU002 - Eu como usuário quero poder fazer login no site.
+----------------------------------------------------------------------
+RQ005 | O sistema deve autenticar o usuário por email e senha.
+      | Código:    model/Usuario.java (implementa UserDetails.getUsername())
+      | Repositório: UsuarioRepository.findByEmail()
+      | Service:   UsuarioService.autenticar()
+      | BD:        V1 — INDEX idx_usuarios_email
+      | Teste:     UsuarioRepositoryTest.deveEncontrarUsuarioPorEmail()
+      |            UsuarioRepositoryTest.deveRetornarVazioParaEmailNaoCadastrado()
+
+RQ006 | O sistema deve retornar um token JWT após autenticação bem-sucedida.
+      | Código:    model/Usuario.java (getAuthorities() → ROLE_USUARIO)
+      | Controller: UsuarioController.login() → TokenService.gerarToken()
+      | Teste:     UsuarioServiceTest (fluxo de autenticação)
+
+RQ007 | Credenciais inválidas devem resultar em erro genérico sem revelar
+      | qual campo falhou (email inexistente ou senha errada → mesma mensagem).
+      | Service:   UsuarioService.autenticar() — lança CredenciaisInvalidasException
+      | Teste:     UsuarioServiceTest (fluxo de credenciais inválidas)
+
+----------------------------------------------------------------------
+EU003 - Eu como usuário quero ter um perfil com preferências e alergias.
+----------------------------------------------------------------------
+RQ008 | O sistema deve manter pontuação de experiência (XP) e nível do usuário.
+      | Código:    model/Usuario.java (campos xp, nivel)
+      | Service:   UsuarioService.adicionarXp() — incrementa xp e recalcula nivel
+      | BD:        V1 — colunas xp INTEGER DEFAULT 0, nivel INTEGER DEFAULT 1
+
+RQ009 | Usuários com nível >= 10 podem solicitar promoção a Administrador.
+      | Código:    model/Usuario.java (campo solicitacaoAdmin)
+      | Repositório: UsuarioRepository.findBySolicitacaoAdminTrueAndPapel()
+      | Service:   UsuarioService.adicionarXp() — seta solicitacaoAdmin=true
+      |            UsuarioService.promoverAdmin() — muda papel para ADMINISTRADOR
+      | BD:        V1 — coluna solicitacao_admin BOOLEAN DEFAULT false
+
+----------------------------------------------------------------------
+EU004 - Eu como administrador quero adicionar e aprovar produtos e
+        estabelecimentos.
+----------------------------------------------------------------------
+RQ010 | O sistema deve permitir cadastro de estabelecimentos com nome,
+      | endereço e geolocalização.
+      | Código:    model/Estabelecimento.java
+      | Repositório: EstabelecimentoRepository (save, findByAprovadoTrue)
+      | Service:   EstabelecimentoService
+      | BD:        V2 — tabela estabelecimentos
+      | Teste:     EstabelecimentoRepositoryTest.deveSalvarEstabelecimento()
+
+RQ011 | O administrador pode aprovar ou rejeitar produtos com status PENDENTE.
+      | Código:    model/Produto.java (campo status), model/StatusProduto.java
+      | Repositório: ProdutoRepository.findByStatus()
+      | Service:   ProdutoService (aprovar/rejeitar produto)
+      | BD:        V3 — status_produto_enum (PENDENTE, APROVADO, REJEITADO)
+      | Teste:     ProdutoRepositoryTest.deveFiltrarProdutosPorStatus()
+
+RQ012 | Produtos APROVADOS ficam visíveis no catálogo público;
+      | PENDENTES e REJEITADOS não aparecem.
+      | Repositório: ProdutoRepository.findByStatus(StatusProduto.APROVADO)
+      | BD:        V3 — DEFAULT 'PENDENTE' ao criar
+      | Teste:     ProdutoRepositoryTest.deveFiltrarProdutosPorStatus()
+
+----------------------------------------------------------------------
+EU005 - Eu como usuário quero submeter produtos para aprovação do administrador.
+----------------------------------------------------------------------
+RQ013 | Usuários podem submeter novos produtos com status inicial PENDENTE.
+      | Código:    model/Produto.java (@Builder.Default status = PENDENTE)
+      | Controller: POST /api/produtos/cadastro
+      | BD:        V3 — DEFAULT 'PENDENTE'
+      | Teste:     ProdutoRepositoryTest.deveSalvarProdutoComStatusPendente()
+
+RQ014 | Produtos PENDENTES não devem aparecer em buscas públicas de usuários.
+      | Repositório: ProdutoRepository.findByStatus(APROVADO) — retorna só aprovados
+      | Service:   ProdutoService — filtra por status APROVADO nas listagens públicas
+
+----------------------------------------------------------------------
+EU006 - Eu como usuário/admin quero iniciar o cadastro pelo código de barras.
+----------------------------------------------------------------------
+RQ015 | O código de barras deve ser identificador único de produto e variação.
+      | Código:    model/Produto.java (codigoBarras @Column unique=true)
+      |            model/VariacaoProduto.java (codigoBarras @Column unique=true)
+      | BD:        V3 — UNIQUE codigo_barras, INDEX idx_produtos_codigo_barras
+      |            V4 — UNIQUE codigo_barras, INDEX idx_variacoes_codigo_barras
+
+RQ016 | O sistema deve permitir busca e preenchimento por código de barras.
+      | Repositório: ProdutoRepository.findByCodigoBarras()
+      |              VariacaoProdutoRepository.findByCodigoBarras()
+      | Teste:     ProdutoRepositoryTest.deveEncontrarPorCodigoDeBarras()
+
+----------------------------------------------------------------------
+EU007 - Eu como usuário/admin quero receber aviso se o produto já existe.
+----------------------------------------------------------------------
+RQ017 | O sistema deve detectar e informar duplicata ao tentar cadastrar
+      | produto/variação com código de barras já existente.
+      | Repositório: ProdutoRepository.existsByCodigoBarras()
+      |              VariacaoProdutoRepository.existsByCodigoBarras()
+      | Service:   ProdutoService — verifica antes de persistir
+      | BD:        V3, V4 — restrição UNIQUE no banco como salvaguarda
+      | Teste:     ProdutoRepositoryTest.deveDetectarCodigoBarrasDuplicado()
+
+RQ018 | O sistema deve retornar erro de conflito ao tentar cadastrar
+      | estabelecimento com nome já existente.
+      | Repositório: EstabelecimentoRepository.existsByNomeIgnoreCase()
+      | Service:   EstabelecimentoService — verifica antes de persistir
+      | Teste:     EstabelecimentoRepositoryTest.deveDetectarNomeDuplicado()
+
+----------------------------------------------------------------------
+EU008 - Eu como usuário quero poder criar uma lista de compras em branco.
+----------------------------------------------------------------------
+RQ019 | O usuário pode criar uma lista de compras vazia com nome definido.
+      | Código:    model/ListaCompras.java
+      | Repositório: ListaComprasRepository.save()
+      | Controller: POST /api/listas
+      | BD:        V5 — tabela listas_compras (nome, usuario_id)
+      | Teste:     ListaComprasRepositoryTest.deveCriarListaDeCompras()
+
+RQ020 | Cada lista pertence exclusivamente ao usuário que a criou.
+      | Código:    model/ListaCompras.java (@ManyToOne usuario NOT NULL)
+      | Repositório: ListaComprasRepository.findByUsuarioId()
+      |              ListaComprasRepository.existsByIdAndUsuarioId()
+      | BD:        V5 — FK usuario_id NOT NULL
+      | Teste:     ListaComprasRepositoryTest.deveBuscarListasDoUsuario()
+      |            ListaComprasRepositoryTest.deveVerificarPropriedadeDaLista()
+
+----------------------------------------------------------------------
+EU009 - Eu como usuário quero poder modificar uma lista de compras já criada.
+----------------------------------------------------------------------
+RQ021 | O usuário pode adicionar itens (variações de produto) a uma lista.
+      | Código:    model/ItemLista.java, model/ListaCompras.java (OneToMany itens)
+      | Repositório: ItemListaRepository.save()
+      | Controller: POST /api/listas/{listaId}/itens
+      | BD:        V5 — tabela itens_lista (lista_id, variacao_id, quantidade)
+      | Teste:     ListaComprasRepositoryTest.deveAdicionarItemEDetectarDuplicata()
+
+RQ022 | Não é permitido adicionar o mesmo item duas vezes na mesma lista.
+      | Repositório: ItemListaRepository.existsByListaIdAndVariacaoProdutoId()
+      | BD:        V5 — UNIQUE (lista_id, variacao_id)
+      | Teste:     ListaComprasRepositoryTest.deveAdicionarItemEDetectarDuplicata()
+
+RQ023 | A exclusão de uma lista remove automaticamente todos os seus itens.
+      | Código:    model/ListaCompras.java (CascadeType.ALL, orphanRemoval=true)
+      | BD:        V5 — ON DELETE CASCADE em itens_lista.lista_id
+      | Teste:     ListaComprasRepositoryTest.deveDeletarListaEItensEmCascata()
+
+----------------------------------------------------------------------
+EU010 - Eu como usuário quero filtrar entre os produtos cadastrados.
+----------------------------------------------------------------------
+RQ024 | O sistema deve permitir busca de produtos por nome parcial.
+      | Repositório: ProdutoRepository.findByNomeContainingIgnoreCase()
+      | BD:        V3 — INDEX idx_produtos_nome
+      | Teste:     ProdutoRepositoryTest.deveBuscarProdutosPorNomeParcial()
+
+RQ025 | O sistema deve permitir filtro de produtos por categoria.
+      | Repositório: ProdutoRepository.findByCategoriaIgnoreCase()
+      | Teste:     ProdutoRepositoryTest.deveFiltrarPorCategoria()
+
+RQ026 | O sistema deve permitir busca de estabelecimentos por nome parcial.
+      | Repositório: EstabelecimentoRepository.findByNomeContainingIgnoreCase()
+      | BD:        V2 — INDEX idx_estabelecimentos_nome
+      | Teste:     EstabelecimentoRepositoryTest.deveBuscarPorNomeParcial()
+
+----------------------------------------------------------------------
+EU011 - Eu como usuário quero consultar valores nos mercados próximos.
+----------------------------------------------------------------------
+RQ027 | O sistema deve comparar preços dos itens da lista por estabelecimento.
+      | Controller: GET /api/listas/{listaId}/comparacao
+      | Service:   ComparacaoService (cruza itens da lista com preços registrados)
+
+======================================================================
+RESUMO
+======================================================================
+Total de requisitos RQ definidos: 27
+Total cobertos por código/BD:     27 (100%)
+Total cobertos por testes:        22 (81%)
+
+RQs sem cobertura de teste direta (implementação em progresso):
+  RQ006 - Token JWT (testado indiretamente via integração)
+  RQ007 - Erro genérico em credenciais inválidas
+  RQ008 - XP e nível (lógica no service, sem teste de repositório)
+  RQ014 - Ocultação de PENDENTE em buscas públicas
+  RQ027 - Comparação de preços (sprint futura)
+
+======================================================================
