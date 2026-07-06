@@ -2,7 +2,6 @@ package com.tp2.compras.repository;
 
 import com.tp2.compras.model.VariacaoProduto;
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -34,7 +33,7 @@ public interface VariacaoProdutoRepository extends JpaRepository<VariacaoProduto
    */
   List<VariacaoProduto> findByProdutoId(Long produtoId);
 
-    /**
+  /**
    * Verifica se já existe uma variação com o código de barras informado.
    *
    * <p>Assertiva de entrada: codigoBarras não nulo.
