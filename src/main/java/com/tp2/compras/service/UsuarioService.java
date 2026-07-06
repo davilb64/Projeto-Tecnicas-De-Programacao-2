@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
@@ -176,5 +178,54 @@ public class UsuarioService {
             throw new IllegalArgumentException("Usuário não encontrado para deleção.");
         }
         usuarioRepository.deleteById(id);
+    }
+
+    /**
+     * Adiciona pontos de Experiência (XP) e calcula o nível do usuário.
+     * Regra: A cada 100 XP, o usuário sobe 1 Nível.
+     */
+    @Transactional
+    public void adicionarXp(Long usuarioId, int pontos) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+
+        int novoXp = usuario.getXp() + pontos;
+        usuario.setXp(novoXp);
+
+        int novoNivel = 1 + (novoXp / 100);
+        usuario.setNivel(novoNivel);
+
+        if (novoNivel >= 10 && usuario.getPapel() == Papel.USUARIO && !usuario.getSolicitacaoAdmin()) {
+            usuario.setSolicitacaoAdmin(true);
+        }
+
+        usuarioRepository.save(usuario);
+    }
+
+    public List<UsuarioResponseDTO> buscarPendentesAdmin() {
+        // Busca todo mundo que tem a flag true E ainda é usuário comum
+        return usuarioRepository.findBySolicitacaoAdminTrueAndPapel(Papel.USUARIO).stream()
+                .map(UsuarioResponseDTO::daEntidade)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Transactional
+    public void promoverAdmin(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+
+        usuario.setPapel(Papel.ADMINISTRADOR); // Promove
+        usuario.setSolicitacaoAdmin(false);    // Limpa a flag
+        usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public void rejeitarPromocaoAdmin(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+
+        // Apenas limpa a flag e mantém como usuário comum
+        usuario.setSolicitacaoAdmin(false);
+        usuarioRepository.save(usuario);
     }
 }

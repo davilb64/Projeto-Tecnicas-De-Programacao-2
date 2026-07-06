@@ -42,8 +42,8 @@ public class ComparacaoService {
                         0,
                         0,
                         "Sua lista está vazia.",
-                        BigDecimal.ZERO,
-                        BigDecimal.ZERO
+                        mercado.getLatitude(),
+                        mercado.getLongitude()
                 ));
             }
             return comparacoes;

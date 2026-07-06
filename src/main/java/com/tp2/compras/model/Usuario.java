@@ -87,6 +87,18 @@ public class Usuario implements UserDetails {
     @Builder.Default
     private Papel papel = Papel.USUARIO;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer xp = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer nivel = 1;
+
+    @Column(name = "solicitacao_admin", nullable = false)
+    @Builder.Default
+    private Boolean solicitacaoAdmin = false;
+
     /**
      * Data e hora de criação do cadastro.
      *

@@ -9,6 +9,7 @@ import com.tp2.compras.model.Usuario;
 import com.tp2.compras.model.VariacaoProduto;
 import com.tp2.compras.repository.ProdutoRepository;
 import com.tp2.compras.repository.UsuarioRepository;
+import com.tp2.compras.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,37 +26,32 @@ public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
     private final UsuarioRepository usuarioRepository;
+    // INJEÇÃO DA DEPENDÊNCIA ADICIONADA
+    private final UsuarioService usuarioService;
 
     /**
      * Cadastra um novo produto no sistema, validando a duplicidade do código de barras
      * e já criando a variação inicial (peso/unidade) enviada pelo Front-end.
-     *
-     * <p>Rastreamento de requisitos:
-     * <ul>
-     * <li>EU004 - Eu como usuário/admin quero poder criar, editar e deletar produtos.</li>
-     * <li>EU005 - Iniciar cadastro pelo código de barras.</li>
-     * <li>EU006 - Receber aviso se o produto já existe.</li>
-     * </ul>
      */
     @Transactional
     public Produto cadastrar(ProdutoCadastroDTO dto) {
         Assert.notNull(dto, "O objeto de cadastro de produto não pode ser nulo");
 
-        // 1. Regra de Negócio: Validação de duplicidade pelo código de barras (EU006)
+        // Regra de Negócio: Validação de duplicidade pelo código de barras (EU006)
         if (dto.codigoBarras() != null && !dto.codigoBarras().isBlank()) {
             if (produtoRepository.existsByCodigoBarras(dto.codigoBarras())) {
                 throw new IllegalArgumentException("Produto com este código de barras já existe no sistema.");
             }
         }
 
-        // 2. Busca o usuário criador se o ID for enviado
+        // Busca o usuário criador se o ID for enviado
         Usuario criador = null;
         if (dto.criadoPorId() != null) {
             criador = usuarioRepository.findById(dto.criadoPorId())
                     .orElseThrow(() -> new IllegalArgumentException("Usuário criador não encontrado."));
         }
 
-        // 3. Instancia o Produto (Pai)
+        // Instancia o Produto (Pai)
         Produto novoProduto = Produto.builder()
                 .nome(dto.nome())
                 .codigoBarras(dto.codigoBarras())
@@ -66,12 +62,12 @@ public class ProdutoService {
                 .variacoes(new ArrayList<>()) // Garante que a lista não é nula
                 .build();
 
-        // 4. Cria a Variação (Filha) com os dados novos da API do OpenFoodFacts
+        // Cria a Variação (Filha) com os dados novos da API do OpenFoodFacts
         if (dto.variacaoDescricao() != null || dto.variacaoPeso() != null) {
             VariacaoProduto variacaoInicial = VariacaoProduto.builder()
                     .produto(novoProduto) // Amarra a filha ao pai
                     .descricao(dto.variacaoDescricao() != null && !dto.variacaoDescricao().isBlank() ? dto.variacaoDescricao() : "Embalagem Padrão")
-                    .peso(BigDecimal.valueOf(dto.variacaoPeso()))
+                    .peso(dto.variacaoPeso() != null ? BigDecimal.valueOf(dto.variacaoPeso()) : null)
                     .unidade(dto.variacaoUnidade())
                     .codigoBarras(dto.codigoBarras()) // A variação herda o código de barras lido
                     .build();
@@ -80,7 +76,7 @@ public class ProdutoService {
             novoProduto.getVariacoes().add(variacaoInicial);
         }
 
-        // 5. O CascadeType.ALL na entidade Produto vai salvar os dois no banco de uma vez só!
+        // O CascadeType.ALL na entidade Produto vai salvar os dois no banco de uma vez só
         return produtoRepository.save(novoProduto);
     }
 
@@ -130,6 +126,11 @@ public class ProdutoService {
         try {
             StatusProduto novoStatus = StatusProduto.valueOf(statusString.toUpperCase());
             produto.setStatus(novoStatus);
+
+            if (novoStatus == StatusProduto.APROVADO && produto.getCriadoPor() != null) {
+                usuarioService.adicionarXp(produto.getCriadoPor().getId(), 50);
+            }
+
             produtoRepository.save(produto);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Status de produto inválido.");

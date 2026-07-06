@@ -15,6 +15,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "*") // Libera o acesso para o frontend fazer requisições sem erro de CORS
 @RestController
 @RequestMapping("/api/usuarios")
@@ -133,6 +135,31 @@ public class UsuarioController {
         try {
             usuarioService.deletar(id);
             return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/pendentes-admin")
+    public ResponseEntity<List<UsuarioResponseDTO>> buscarPendentesAdmin() {
+        return ResponseEntity.ok(usuarioService.buscarPendentesAdmin());
+    }
+
+    @PatchMapping("/{id}/promover")
+    public ResponseEntity<Void> promoverAdmin(@PathVariable Long id) {
+        try {
+            usuarioService.promoverAdmin(id);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PatchMapping("/{id}/rejeitar-promocao")
+    public ResponseEntity<Void> rejeitarPromocaoAdmin(@PathVariable Long id) {
+        try {
+            usuarioService.rejeitarPromocaoAdmin(id);
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }

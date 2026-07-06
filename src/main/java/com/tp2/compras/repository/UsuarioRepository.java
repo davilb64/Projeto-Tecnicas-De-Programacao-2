@@ -1,9 +1,11 @@
 package com.tp2.compras.repository;
 
+import com.tp2.compras.model.Papel;
 import com.tp2.compras.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -68,4 +70,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      * @return true se o e-mail já está cadastrado, false caso contrário
      */
     boolean existsByEmail(String email);
+
+    List<Usuario> findBySolicitacaoAdminTrueAndPapel(Papel papel);
 }

@@ -77,7 +77,9 @@ public class EstabelecimentoService {
         Estabelecimento novo = Estabelecimento.builder()
                 .nome(dto.nome())
                 .endereco(dto.endereco())
-                .aprovado(false) // Fica aguardando auditoria do Admin
+                .latitude(dto.latitude())
+                .longitude(dto.longitude())
+                .aprovado(false)
                 .build();
 
         return EstabelecimentoResponseDTO.daEntidade(estabelecimentoRepository.save(novo));
@@ -145,6 +147,13 @@ public class EstabelecimentoService {
 
         if (dto.endereco() != null) {
             estabelecimento.setEndereco(dto.endereco());
+        }
+
+        if (dto.latitude() != null) {
+            estabelecimento.setLatitude(dto.latitude());
+        }
+        if (dto.longitude() != null) {
+            estabelecimento.setLongitude(dto.longitude());
         }
 
         return EstabelecimentoResponseDTO.daEntidade(estabelecimentoRepository.save(estabelecimento));

@@ -27,7 +27,7 @@ public class PrecoService {
     private final PrecoRepository precoRepository;
     private final VariacaoProdutoRepository variacaoRepository;
     private final EstabelecimentoRepository estabelecimentoRepository;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
     @Transactional
     public PrecoResponseDTO registrarPreco(PrecoCadastroDTO dto) {
@@ -39,17 +39,21 @@ public class PrecoService {
         Estabelecimento mercado = estabelecimentoRepository.findById(dto.estabelecimentoId())
                 .orElseThrow(() -> new IllegalArgumentException("Estabelecimento não encontrado."));
 
-        Usuario usuario = usuarioRepository.findById(dto.usuarioId())
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+        // Cria uma entidade "oca" só com o ID para salvar a FK sem precisar buscar no banco inteiro de novo
+        Usuario usuarioRef = new Usuario();
+        usuarioRef.setId(dto.usuarioId());
 
         Preco novoPreco = Preco.builder()
                 .variacao(variacao)
                 .estabelecimento(mercado)
-                .registradoPor(usuario)
+                .registradoPor(usuarioRef)
                 .valor(dto.valor())
                 .build();
 
         Preco salvo = precoRepository.save(novoPreco);
+
+        usuarioService.adicionarXp(dto.usuarioId(), 10);
+
         return PrecoResponseDTO.daEntidade(salvo);
     }
 

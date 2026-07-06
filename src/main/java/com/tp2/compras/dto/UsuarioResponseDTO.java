@@ -19,6 +19,8 @@ public record UsuarioResponseDTO(
         String nome,
         String email,
         Papel papel,
+        Integer xp,
+        Integer nivel,
         LocalDateTime criadoEm
 ) {
     public static UsuarioResponseDTO daEntidade(Usuario usuario) {
@@ -27,6 +29,8 @@ public record UsuarioResponseDTO(
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getPapel(),
+                usuario.getXp(),
+                usuario.getNivel(),
                 usuario.getCriadoEm()
         );
     }
