@@ -3,6 +3,7 @@ package com.tp2.compras.service;
 import com.tp2.compras.dto.ItemListaAdicionarDTO;
 import com.tp2.compras.dto.ListaComprasResponseDTO;
 import com.tp2.compras.model.ListaCompras;
+import com.tp2.compras.model.Produto;
 import com.tp2.compras.model.VariacaoProduto;
 import com.tp2.compras.repository.ItemListaRepository;
 import com.tp2.compras.repository.ListaComprasRepository;
@@ -43,8 +44,9 @@ class ListaComprasServiceTest {
         Long listaId = 1L;
         ItemListaAdicionarDTO dto = new ItemListaAdicionarDTO(10L, 2); // ID da variação 10, Qtd 2
 
+        Produto produtoMock = Produto.builder().id(1L).nome("Coca Cola").build();
         ListaCompras listaMock = ListaCompras.builder().id(listaId).nome("Compras de Sexta").itens(new ArrayList<>()).build();
-        VariacaoProduto variacaoMock = VariacaoProduto.builder().id(10L).descricao("Coca Cola 2L").build();
+        VariacaoProduto variacaoMock = VariacaoProduto.builder().id(10L).descricao("Coca Cola 2L").produto(produtoMock).build();
 
         // Ensinando o Mockito a fingir que achou a lista e o produto no banco
         when(listaRepository.findById(listaId)).thenReturn(Optional.of(listaMock));

@@ -61,7 +61,7 @@ class EstabelecimentoServiceTest {
             service.cadastrar(dto);
         });
 
-        assertEquals("Já existe um estabelecimento cadastrado com este nome.", erro.getMessage());
+        assertEquals("Já existe um estabelecimento cadastrado ou sugerido com este nome.", erro.getMessage());
 
         // Garante que o método save() NUNCA foi chamado, protegendo o banco
         verify(repository, never()).save(any(Estabelecimento.class));

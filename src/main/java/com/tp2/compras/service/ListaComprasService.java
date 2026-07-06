@@ -65,21 +65,17 @@ public class ListaComprasService {
     ListaCompras lista = listaRepository.findById(listaId).orElseThrow();
     VariacaoProduto variacao = variacaoRepository.findById(dto.variacaoId()).orElseThrow();
 
-    ItemLista itemExistente = lista.getItens().stream()
-                .filter(i -> i.getVariacao().getId().equals(variacao.getId()))
-                .findFirst().orElse(null);
-
-    if (itemExistente != null) {
-      itemExistente.setQuantidade(itemExistente.getQuantidade() + dto.quantidade());
-    } else {
-      ItemLista novoItem = ItemLista.builder()
-                    .lista(lista)
-                    .variacao(variacao)
-                    .quantidade(dto.quantidade())
-                    .comprado(false)
-                    .build();
-      lista.getItens().add(novoItem);
+    if (itemRepository.existsByListaIdAndVariacaoId(listaId, dto.variacaoId())) {
+      throw new IllegalArgumentException("Este produto já está na sua lista.");
     }
+
+    ItemLista novoItem = ItemLista.builder()
+                .lista(lista)
+                .variacao(variacao)
+                .quantidade(dto.quantidade())
+                .comprado(false)
+                .build();
+    lista.getItens().add(novoItem);
     return ListaComprasResponseDTO.daEntidade(listaRepository.save(lista));
   }
 
