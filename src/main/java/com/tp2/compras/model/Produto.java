@@ -19,9 +19,21 @@ import org.hibernate.type.SqlTypes;
  *
  * <p>Rastreamento de requisitos:
  * <ul>
- *   <li>EU004 - Eu como usuário/admin quero poder criar, editar e deletar produtos.</li>
- *   <li>EU005 - Eu como usuário/admin quero iniciar o cadastro pelo código de barras.</li>
- *   <li>EU006 - Eu como usuário/admin quero receber aviso se o produto já existe.</li>
+ *   <li>EU004 - Eu como administrador quero poder adicionar e aprovar produtos.</li>
+ *   <li>EU005 - Eu como usuário quero submeter produtos para aprovação.</li>
+ *   <li>EU006 - Eu como usuário/admin quero iniciar o cadastro pelo código de barras.</li>
+ *   <li>EU007 - Eu como usuário/admin quero receber aviso se o produto já existe.</li>
+ * </ul>
+ *
+ * <p>Requisitos implementados:
+ * <ul>
+ *   <li>RQ011 - Campo status (PENDENTE/APROVADO/REJEITADO) controlado pelo admin.</li>
+ *   <li>RQ012 - Apenas produtos APROVADOS visíveis em buscas públicas.</li>
+ *   <li>RQ013 - Status inicial PENDENTE ao ser criado por usuário.</li>
+ *   <li>RQ015 - Campo codigoBarras com restrição UNIQUE.</li>
+ *   <li>RQ017 - Duplicata detectada via existsByCodigoBarras() antes de persistir.</li>
+ *   <li>RQ024 - Busca por nome parcial via findByNomeContaining().</li>
+ *   <li>RQ025 - Filtro por categoria via findByCategoria().</li>
  * </ul>
  */
 @Entity

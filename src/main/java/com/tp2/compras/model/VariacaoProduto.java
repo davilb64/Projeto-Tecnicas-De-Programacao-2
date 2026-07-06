@@ -16,8 +16,15 @@ import lombok.NoArgsConstructor;
  *
  * <p>Rastreamento de requisitos:
  * <ul>
- *   <li>EU006 - Eu como admin quero agrupar variações de um mesmo produto (Peso/Tamanho).</li>
- *   <li>EU005 - Cada variação pode ser identificada pelo seu código de barras.</li>
+ *   <li>EU006 - Eu como usuário/admin quero iniciar o cadastro pelo código de barras.</li>
+ *   <li>EU007 - Eu como usuário/admin quero receber aviso se o produto já existe.</li>
+ * </ul>
+ *
+ * <p>Requisitos implementados:
+ * <ul>
+ *   <li>RQ015 - Código de barras único por variação (campo codigoBarras UNIQUE).</li>
+ *   <li>RQ016 - Busca de variação por código de barras via findByCodigoBarras().</li>
+ *   <li>RQ017 - Duplicata detectada via existsByCodigoBarras() antes de persistir.</li>
  * </ul>
  */
 @Entity

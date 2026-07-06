@@ -12,9 +12,17 @@ import org.springframework.stereotype.Repository;
  *
  * <p>Rastreamento de requisitos:
  * <ul>
- *   <li>EU001 - Eu como usuário quero poder criar uma conta no site para poder interagir.</li>
- *   <li>EU002 - Eu como usuário quero poder fazer login no
- *   site se já possuo uma conta e cair na tela principal.</li>
+ *   <li>EU001 - Eu como usuário quero poder criar uma conta no site.</li>
+ *   <li>EU002 - Eu como usuário quero poder fazer login no site.</li>
+ *   <li>EU003 - Eu como usuário quero ter um perfil com preferências.</li>
+ * </ul>
+ *
+ * <p>Requisitos implementados:
+ * <ul>
+ *   <li>RQ001 - save() persiste novo usuário com dados validados.</li>
+ *   <li>RQ002 - existsByEmail() verifica unicidade de email antes do cadastro.</li>
+ *   <li>RQ005 - findByEmail() busca usuário para autenticação no login.</li>
+ *   <li>RQ009 - findBySolicitacaoAdminTrueAndPapel() lista candidatos à promoção.</li>
  * </ul>
  */
 @Repository

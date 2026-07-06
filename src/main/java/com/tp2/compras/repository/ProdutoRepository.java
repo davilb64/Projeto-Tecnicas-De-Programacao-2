@@ -12,10 +12,21 @@ import org.springframework.stereotype.Repository;
  *
  * <p>Rastreamento de requisitos:
  * <ul>
- *   <li>EU004 - Eu como usuário/admin quero poder criar, editar e deletar produtos.</li>
- *   <li>EU005 - Eu como usuário/admin quero iniciar o cadastro pelo código de barras.</li>
- *   <li>EU006 - Eu como usuário/admin quero receber aviso se o produto já existe.</li>
- *   <li>EU007 - Eu como usuário quero navegar entre os produtos.</li>
+ *   <li>EU004 - Eu como administrador quero aprovar produtos.</li>
+ *   <li>EU005 - Eu como usuário quero submeter produtos para aprovação.</li>
+ *   <li>EU006 - Eu como usuário/admin quero iniciar o cadastro pelo código de barras.</li>
+ *   <li>EU007 - Eu como usuário/admin quero receber aviso se o produto já existe.</li>
+ *   <li>EU010 - Eu como usuário quero filtrar entre os produtos cadastrados.</li>
+ * </ul>
+ *
+ * <p>Requisitos implementados:
+ * <ul>
+ *   <li>RQ012 - findByStatus(APROVADO) retorna apenas produtos visíveis ao público.</li>
+ *   <li>RQ013 - findByStatus(PENDENTE) retorna produtos aguardando aprovação do admin.</li>
+ *   <li>RQ016 - findByCodigoBarras() busca produto por código de barras exato.</li>
+ *   <li>RQ017 - existsByCodigoBarras() detecta duplicata antes de persistir.</li>
+ *   <li>RQ024 - findByNomeContainingIgnoreCase() habilita busca parcial por nome.</li>
+ *   <li>RQ025 - findByCategoriaIgnoreCase() habilita filtro por categoria.</li>
  * </ul>
  */
 @Repository

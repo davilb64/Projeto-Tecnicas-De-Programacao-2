@@ -10,8 +10,15 @@ import org.springframework.stereotype.Repository;
  *
  * <p>Rastreamento de requisitos:
  * <ul>
- *   <li>EU003 - Eu como usuário/admin quero poder criar, editar e deletar estabelecimentos.</li>
- *   <li>EU007 - Eu como usuário quero navegar entre os estabelecimentos.</li>
+ *   <li>EU004 - Eu como administrador quero cadastrar e aprovar estabelecimentos.</li>
+ *   <li>EU010 - Eu como usuário quero filtrar entre os estabelecimentos cadastrados.</li>
+ * </ul>
+ *
+ * <p>Requisitos implementados:
+ * <ul>
+ *   <li>RQ010 - findByAprovadoTrue() retorna apenas estabelecimentos validados.</li>
+ *   <li>RQ018 - existsByNomeIgnoreCase() detecta conflito de nome antes de persistir.</li>
+ *   <li>RQ026 - findByNomeContainingIgnoreCase() habilita busca parcial por nome.</li>
  * </ul>
  */
 @Repository

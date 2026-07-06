@@ -26,6 +26,19 @@ import org.springframework.security.core.userdetails.UserDetails;
  *   <li>EU001 - Eu como usuário quero poder criar uma conta no site para poder interagir.</li>
  *   <li>EU002 - Eu como usuário quero poder fazer login no site
  *   se já possuo uma conta e cair na tela principal.</li>
+ *   <li>EU003 - Eu como usuário quero ter um perfil com preferências e alergias.</li>
+ * </ul>
+ *
+ * <p>Requisitos implementados:
+ * <ul>
+ *   <li>RQ001 - Cadastro de novo usuário com nome, email e senha.</li>
+ *   <li>RQ002 - Email único no sistema (campo email UNIQUE).</li>
+ *   <li>RQ003 - Senha armazenada como hash BCrypt (campo senhaHash).</li>
+ *   <li>RQ004 - Papel padrão USUARIO ao se cadastrar.</li>
+ *   <li>RQ005 - Autenticação por email e senha via UserDetails.</li>
+ *   <li>RQ006 - Token JWT gerado após autenticação (getAuthorities).</li>
+ *   <li>RQ008 - Pontuação de experiência XP e nível do usuário.</li>
+ *   <li>RQ009 - Flag solicitacaoAdmin para promoção a Administrador.</li>
  * </ul>
  */
 @Entity

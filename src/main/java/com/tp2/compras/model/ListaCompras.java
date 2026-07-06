@@ -16,7 +16,16 @@ import lombok.NoArgsConstructor;
  *
  * <p>Rastreamento de requisitos:
  * <ul>
- *   <li>EU008 - Eu como usuário quero poder criar, modificar e deletar listas de compras.</li>
+ *   <li>EU008 - Eu como usuário quero poder criar uma lista de compras em branco.</li>
+ *   <li>EU009 - Eu como usuário quero poder modificar uma lista de compras já criada.</li>
+ * </ul>
+ *
+ * <p>Requisitos implementados:
+ * <ul>
+ *   <li>RQ019 - Lista de compras vazia com nome definido pelo usuário.</li>
+ *   <li>RQ020 - Lista pertence exclusivamente ao usuário criador (FK usuario_id NOT NULL).</li>
+ *   <li>RQ021 - Itens adicionados via relação OneToMany com ItemLista.</li>
+ *   <li>RQ023 - Exclusão em cascata de todos os itens ao deletar a lista (CascadeType.ALL).</li>
  * </ul>
  */
 @Entity
