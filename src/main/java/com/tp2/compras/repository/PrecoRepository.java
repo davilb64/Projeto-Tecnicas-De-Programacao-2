@@ -48,7 +48,7 @@ public interface PrecoRepository extends JpaRepository<Preco, Long> {
       findFirstByVariacaoIdAndEstabelecimentoIdOrderByDataRegistroDesc(Long variacaoId,
       Long estabelecimentoId);
 
-    /**
+  /**
    * Busca o histórico completo de preços de uma variação
    * em um mercado específico, do mais novo pro mais antigo.
    * Útil caso você queira implementar
@@ -88,17 +88,18 @@ public interface PrecoRepository extends JpaRepository<Preco, Long> {
    * @return Lista com os preços mais recentes de cada item solicitado
    */
   @Query(
-        """
-        SELECT p FROM Preco p\s
-        WHERE p.estabelecimento.id = :estabelecimentoId\s
-          AND p.variacao.id IN :variacaoIds\s
-          AND p.dataRegistro = (
-              SELECT MAX(p2.dataRegistro)\s
-              FROM Preco p2\s
-              WHERE p2.variacao.id = p.variacao.id\s
-                AND p2.estabelecimento.id = :estabelecimentoId
-          )
-       \s""")
+          """
+            SELECT p FROM Preco p\s
+            WHERE p.estabelecimento.id = :estabelecimentoId\s
+              AND p.variacao.id IN :variacaoIds\s
+              AND p.dataRegistro = (
+                  SELECT MAX(p2.dataRegistro)\s
+                  FROM Preco p2\s
+                  WHERE p2.variacao.id = p.variacao.id\s
+                    AND p2.estabelecimento.id = :estabelecimentoId
+              )
+           \s
+          """)
     List<Preco> buscarPrecosAtuaisDaListaNoMercado(
             @Param("variacaoIds") List<Long> variacaoIds,
             @Param("estabelecimentoId") Long estabelecimentoId

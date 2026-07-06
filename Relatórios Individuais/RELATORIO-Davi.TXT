@@ -5,13 +5,19 @@ Disciplina: Técnicas de Programação 2 - UnB - 1/2026
 ===============================================================================================================================================================================================================================================================
 Data       | Horas | Tipo Tarefa                         | Descrição
 ===============================================================================================================================================================================================================================================================
-14/06/2026 | 3h    | Desenvolvimento Telas (Front-End)   | Desenvolvimento de telas de login e cadastro que fariam requisições para o back-end.
+14/06/2026 | 3h    | Desenvolvimento Telas (Front-End)               | Desenvolvimento de telas de login e cadastro que fariam requisições para o back-end.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-16/06/2026 | 3h    | codificar módulo                    | Refatoração do UsuarioController para uso do padrão de resposta.
+16/06/2026 | 3h    | codificar módulo                                | Refatoração do UsuarioController para uso do padrão de resposta.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-16/06/2026 | 1h    | configurar segurança                | Implementação do Spring Security para requisições vindas do front.
+16/06/2026 | 1h    | configurar segurança                            | Implementação do Spring Security para requisições vindas do front.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-17/06/2026 | 4h    | codificar módulo                    | Integração do Frontend (HTML/JS) com a API REST. Implementação da lógica de autenticação via Fetch API e uso de LocalStorage para persistência de sessão.
+17/06/2026 | 4h    | codificar módulo                                | Integração do Frontend (HTML/JS) com a API REST. Implementação da lógica de autenticação via Fetch API e uso de LocalStorage para persistência de sessão.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-17/06/2026 | 3h    | infraestrutura e deploy             | Configuração de ambiente de nuvem (Render/Vercel), ajuste de rotas CORS e solução de erros de timeout (Cold Start) na inicialização do backend Java. Além da configuração do DockerFile
+17/06/2026 | 3h    | infraestrutura e deploy                         | Configuração de ambiente de nuvem (Render/Vercel), ajuste de rotas CORS e solução de erros de timeout (Cold Start) na inicialização do backend Java. Além da configuração do DockerFile
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+29/06/2026 | 18h   | Integração e pendências Sprint 2                | Finalização da segunda sprint con integrção e resolução de tarefas não concluídas.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+05/07/2026 | 12h   | Integração e pendências Sprint 3                | Finalização da última sprint con integrção e resolução de tarefas não concluídas. Além da conclusão do trabalho.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+06/07/2026 | 8h    | Documentação e verificações de especificações   | Verificação de especificações do trabalho e deixando conformidades a par.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
