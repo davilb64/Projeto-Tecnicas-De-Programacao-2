@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * Entidade que representa um item dentro de uma lista de compras.
@@ -43,6 +45,7 @@ public class ItemLista {
    */
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "lista_id", nullable = false)
+  @OnDelete(action = OnDeleteAction.CASCADE)
     private ListaCompras lista;
 
   /**

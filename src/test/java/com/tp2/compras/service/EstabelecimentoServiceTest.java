@@ -54,7 +54,7 @@ class EstabelecimentoServiceTest {
         EstabelecimentoCadastroDTO dto = new EstabelecimentoCadastroDTO("Supermercado Extra", "Rua X", null, null);
 
         // Simula que o banco respondeu que JÁ EXISTE mercado com esse nome
-        when(repository.existsByNomeIgnoreCase("Carrefour")).thenReturn(true);
+        when(repository.existsByNomeIgnoreCase("Supermercado Extra")).thenReturn(true);
 
         // 2 e 3. Executa a ação e verifica se a Exceção foi lançada
         IllegalArgumentException erro = assertThrows(IllegalArgumentException.class, () -> {
