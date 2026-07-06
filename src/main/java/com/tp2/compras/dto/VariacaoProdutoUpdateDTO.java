@@ -1,9 +1,11 @@
 package com.tp2.compras.dto;
 
 import jakarta.validation.constraints.Size;
-
 import java.math.BigDecimal;
 
+/**
+ * Entidade DTO para update de estabelecimento.
+ **/
 public record VariacaoProdutoUpdateDTO(
         @Size(max = 100, message = "A descrição deve ter no máximo 100 caracteres")
         String descricao,

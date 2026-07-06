@@ -11,88 +11,108 @@ import com.tp2.compras.repository.ItemListaRepository;
 import com.tp2.compras.repository.ListaComprasRepository;
 import com.tp2.compras.repository.UsuarioRepository;
 import com.tp2.compras.repository.VariacaoProdutoRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+/**
+ * Métodos de Listas de Compras.
+ **/
 @Service
 @RequiredArgsConstructor
 public class ListaComprasService {
 
-    private final ListaComprasRepository listaRepository;
-    private final ItemListaRepository itemRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final VariacaoProdutoRepository variacaoRepository;
+  private final ListaComprasRepository listaRepository;
+  private final ItemListaRepository itemRepository;
+  private final UsuarioRepository usuarioRepository;
+  private final VariacaoProdutoRepository variacaoRepository;
 
-    @Transactional
+  /**
+   * Cadastro de listas.
+   **/
+  @Transactional
     public ListaCompras cadastrarLista(ListaComprasCadastroDTO dto) {
-        Assert.notNull(dto, "O DTO da lista não pode ser nulo");
+    Assert.notNull(dto, "O DTO da lista não pode ser nulo");
 
-        Usuario dono = usuarioRepository.findById(dto.usuarioId())
+    Usuario dono = usuarioRepository.findById(dto.usuarioId())
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
 
-        ListaCompras novaLista = ListaCompras.builder()
+    ListaCompras novaLista = ListaCompras.builder()
                 .usuario(dono)
                 .nome(dto.nome())
                 .build();
 
-        return listaRepository.save(novaLista);
-    }
+    return listaRepository.save(novaLista);
+  }
 
-    public List<ListaComprasResponseDTO> listarDoUsuario(Long usuarioId) {
-        return listaRepository.findByUsuarioId(usuarioId).stream()
+  /**
+   * Lista listas de compras do usuário por ID.
+   **/
+  public List<ListaComprasResponseDTO> listarDoUsuario(Long usuarioId) {
+    return listaRepository.findByUsuarioId(usuarioId).stream()
                 .map(ListaComprasResponseDTO::daEntidade)
                 .collect(Collectors.toList());
-    }
+  }
 
-    @Transactional
+  /**
+   * Adiciona item à lista por ID.
+   **/
+  @Transactional
     public ListaComprasResponseDTO adicionarItem(Long listaId, ItemListaAdicionarDTO dto) {
-        ListaCompras lista = listaRepository.findById(listaId).orElseThrow();
-        VariacaoProduto variacao = variacaoRepository.findById(dto.variacaoId()).orElseThrow();
+    ListaCompras lista = listaRepository.findById(listaId).orElseThrow();
+    VariacaoProduto variacao = variacaoRepository.findById(dto.variacaoId()).orElseThrow();
 
-        ItemLista itemExistente = lista.getItens().stream()
+    ItemLista itemExistente = lista.getItens().stream()
                 .filter(i -> i.getVariacao().getId().equals(variacao.getId()))
                 .findFirst().orElse(null);
 
-        if (itemExistente != null) {
-            itemExistente.setQuantidade(itemExistente.getQuantidade() + dto.quantidade());
-        } else {
-            ItemLista novoItem = ItemLista.builder()
+    if (itemExistente != null) {
+      itemExistente.setQuantidade(itemExistente.getQuantidade() + dto.quantidade());
+    } else {
+      ItemLista novoItem = ItemLista.builder()
                     .lista(lista)
                     .variacao(variacao)
                     .quantidade(dto.quantidade())
                     .comprado(false)
                     .build();
-            lista.getItens().add(novoItem);
-        }
-        return ListaComprasResponseDTO.daEntidade(listaRepository.save(lista));
+      lista.getItens().add(novoItem);
     }
+    return ListaComprasResponseDTO.daEntidade(listaRepository.save(lista));
+  }
 
-    @Transactional
+  /**
+   * Alterna Status do item por ID.
+   **/
+  @Transactional
     public void alternarStatusComprado(Long itemId) {
-        ItemLista item = itemRepository.findById(itemId)
+    ItemLista item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("Item não encontrado."));
-        item.setComprado(!item.getComprado());
-        itemRepository.save(item);
-    }
+    item.setComprado(!item.getComprado());
+    itemRepository.save(item);
+  }
 
-    @Transactional
+  /**
+   * Remove item por ID.
+   **/
+  @Transactional
     public void removerItem(Long itemId) {
-        if (!itemRepository.existsById(itemId)) {
-            throw new IllegalArgumentException("Item não encontrado.");
-        }
-        itemRepository.deleteById(itemId);
+    if (!itemRepository.existsById(itemId)) {
+      throw new IllegalArgumentException("Item não encontrado.");
     }
+    itemRepository.deleteById(itemId);
+  }
 
-    @Transactional
+  /**
+   * Deleta lista por ID.
+   **/
+  @Transactional
     public void deletarLista(Long listaId) {
-        if (!listaRepository.existsById(listaId)) {
-            throw new IllegalArgumentException("Lista não encontrada.");
-        }
-        listaRepository.deleteById(listaId);
+    if (!listaRepository.existsById(listaId)) {
+      throw new IllegalArgumentException("Lista não encontrada.");
     }
+    listaRepository.deleteById(listaId);
+  }
 }

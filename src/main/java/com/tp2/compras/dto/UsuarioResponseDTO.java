@@ -4,7 +4,6 @@ import com.tp2.compras.model.Papel;
 import com.tp2.compras.model.Usuario;
 import java.time.LocalDateTime;
 
-
 /**
  * Objeto de Transferência de Dados (DTO) para envio seguro de informações do usuário.
  * Filtra dados sensíveis como a senha criptografada.
@@ -23,8 +22,11 @@ public record UsuarioResponseDTO(
         Integer nivel,
         LocalDateTime criadoEm
 ) {
-    public static UsuarioResponseDTO daEntidade(Usuario usuario) {
-        return new UsuarioResponseDTO(
+  /**
+   * Classe construtora DTO de resposta Listas de compras.
+   **/
+  public static UsuarioResponseDTO daEntidade(Usuario usuario) {
+    return new UsuarioResponseDTO(
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
@@ -33,5 +35,5 @@ public record UsuarioResponseDTO(
                 usuario.getNivel(),
                 usuario.getCriadoEm()
         );
-    }
+  }
 }

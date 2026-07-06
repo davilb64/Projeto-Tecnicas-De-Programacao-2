@@ -14,21 +14,31 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Configurações de segurança para a integração.
+ */
 @Configuration
 @EnableWebSecurity
 
 public class SecurityConfig {
 
-    private final SecurityFilter securityFilter;
+  private final SecurityFilter securityFilter;
 
-    public SecurityConfig(SecurityFilter securityFilter) {
-        this.securityFilter = securityFilter;
-    }
+  /**
+   * Classe construtora.
+   */
+  public SecurityConfig(SecurityFilter securityFilter) {
+    this.securityFilter = securityFilter;
+  }
 
-    @Bean
+  /**
+   * Filtro de segurança.
+   */
+  @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+    http.csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/usuarios/cadastro").permitAll()
                         .requestMatchers("/api/usuarios/login").permitAll()
@@ -37,16 +47,24 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+    return http.build();
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
+  /**
+   * Gerenciador de autenticação.
+   */
+  @Bean
+    public AuthenticationManager
+        authenticationManager(AuthenticationConfiguration
+                                authenticationConfiguration) throws Exception {
+    return authenticationConfiguration.getAuthenticationManager();
+  }
 
-    @Bean
+  /**
+   * Criptografia.
+   */
+  @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    return new BCryptPasswordEncoder();
+  }
 }

@@ -1,7 +1,6 @@
 package com.tp2.compras.dto;
 
 import com.tp2.compras.model.Preco;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -20,10 +19,14 @@ public record PrecoResponseDTO(
         BigDecimal valor,
         LocalDateTime dataRegistro
 ) {
-    public static PrecoResponseDTO daEntidade(Preco preco) {
-        String nomeProdVar = preco.getVariacao().getProduto().getNome() + " - " + preco.getVariacao().getDescricao();
+  /**
+   * Classe construtora do DTO de resposta de preço.
+   */
+  public static PrecoResponseDTO daEntidade(Preco preco) {
+    String nomeProdVar = preco.getVariacao().getProduto().getNome()
+            + " - " + preco.getVariacao().getDescricao();
 
-        return new PrecoResponseDTO(
+    return new PrecoResponseDTO(
                 preco.getId(),
                 preco.getVariacao().getId(),
                 nomeProdVar,
@@ -34,5 +37,5 @@ public record PrecoResponseDTO(
                 preco.getValor(),
                 preco.getDataRegistro()
         );
-    }
+  }
 }

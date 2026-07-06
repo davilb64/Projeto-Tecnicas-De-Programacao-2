@@ -3,13 +3,14 @@ package com.tp2.compras.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+
 
 /**
  * Entidade que representa um estabelecimento comercial no sistema.
@@ -27,71 +28,72 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Estabelecimento {
 
-    /**
-     * Identificador único do estabelecimento.
-     *
-     * <p>Assertiva de saída: id != null após persistência.
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+  /**
+   * Identificador único do estabelecimento.
+   *
+   * <p>Assertiva de saída: id != null após persistência.
+   */
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * Nome do estabelecimento.
-     *
-     * <p>Assertiva de entrada: nome não nulo, não vazio, máximo 150 caracteres.
-     */
-    @NotBlank
-    @Size(max = 150)
-    @Column(nullable = false, length = 150)
+  /**
+   * Nome do estabelecimento.
+   *
+   * <p>Assertiva de entrada: nome não nulo, não vazio, máximo 150 caracteres.
+   */
+  @NotBlank
+  @Size(max = 150)
+  @Column(nullable = false, length = 150)
     private String nome;
 
-    /**
-     * Endereço do estabelecimento.
-     *
-     * <p>Assertiva de entrada: endereço pode ser nulo; se informado, máximo 255 caracteres.
-     */
-    @Size(max = 255)
-    @Column(length = 255)
+  /**
+   * Endereço do estabelecimento.
+   *
+   * <p>Assertiva de entrada: endereço pode ser nulo; se informado, máximo 255 caracteres.
+   */
+  @Size(max = 255)
+  @Column()
     private String endereco;
 
-    @Column(precision = 10, scale = 7)
+  @Column(precision = 10, scale = 7)
     private BigDecimal latitude;
 
-    @Column(precision = 10, scale = 7)
+  @Column(precision = 10, scale = 7)
     private BigDecimal longitude;
 
-    /**
-     * Flag que indica se o mercado foi validado pelo Admin.
-     * Sugestões de usuários entram como false.
-     */
-    @Column(nullable = false)
-    @Builder.Default
+  /**
+   * Flag que indica se o mercado foi validado pelo Admin.
+   * Sugestões de usuários entram como false.
+   */
+  @Column(nullable = false)
+  @Builder.Default
     private Boolean aprovado = false;
 
-    /**
-     * Data e hora de criação do registro.
-     *
-     * <p>Assertiva de saída: criadoEm != null após persistência.
-     */
-    @Column(name = "criado_em", nullable = false, updatable = false)
-    @Builder.Default
+  /**
+   * Data e hora de criação do registro.
+   *
+   * <p>Assertiva de saída: criadoEm != null após persistência.
+   */
+  @Column(name = "criado_em", nullable = false, updatable = false)
+  @Builder.Default
     private LocalDateTime criadoEm = LocalDateTime.now();
 
-    /**
-     * Define criadoEm antes da primeira persistência caso não tenha sido inicializado.
-     *
-     * <p>Assertiva de entrada: objeto ainda não persistido.
-     * <p>Assertiva de saída: criadoEm != null.
-     *
-     * <p><b>Argumentação da corretude:</b>
-     * A condicional garante que criadoEm nunca seja persistido como nulo,
-     * cobrindo o caso de objetos criados sem o Builder.
-     */
-    @PrePersist
+  /**
+   * Define criadoEm antes da primeira persistência caso não tenha sido inicializado.
+   *
+   * <p>Assertiva de entrada: objeto ainda não persistido.
+   *
+   * <p>Assertiva de saída: criadoEm != null.
+   *
+   * <p><b>Argumentação da corretude:</b>
+   * A condicional garante que criadoEm nunca seja persistido como nulo,
+   * cobrindo o caso de objetos criados sem o Builder.
+   */
+  @PrePersist
     private void prePersist() {
-        if (criadoEm == null) {
-            criadoEm = LocalDateTime.now();
-        }
+    if (criadoEm == null) {
+      criadoEm = LocalDateTime.now();
     }
+  }
 }

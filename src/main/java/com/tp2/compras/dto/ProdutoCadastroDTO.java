@@ -3,6 +3,9 @@ package com.tp2.compras.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * DTO para cadastro de produto.
+ **/
 public record ProdutoCadastroDTO(
         // Assertiva: Nome não pode ser vazio e deve ter no máximo 150 caracteres.
         @NotBlank(message = "O nome do produto é obrigatório")

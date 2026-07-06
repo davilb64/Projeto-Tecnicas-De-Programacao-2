@@ -27,50 +27,51 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ItemLista {
 
-    /**
-     * Identificador único do item.
-     *
-     * <p>Assertiva de saída: id != null após persistência.
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+  /**
+   * Identificador único do item.
+   *
+   * <p>Assertiva de saída: id != null após persistência.
+   */
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * Lista à qual este item pertence.
-     *
-     * <p>Assertiva de entrada: lista não nula; deve estar persistida no banco.
-     */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "lista_id", nullable = false)
+  /**
+   * Lista à qual este item pertence.
+   *
+   * <p>Assertiva de entrada: lista não nula; deve estar persistida no banco.
+   */
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "lista_id", nullable = false)
     private ListaCompras lista;
 
-    /**
-     * Variação do produto selecionada para este item.
-     *
-     * <p>Assertiva de entrada: variacao não nula; deve estar persistida no banco.
-     */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "variacao_id", nullable = false)
+  /**
+   * Variação do produto selecionada para este item.
+   *
+   * <p>Assertiva de entrada: variacao não nula; deve estar persistida no banco.
+   */
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "variacao_id", nullable = false)
     private VariacaoProduto variacao;
 
-    /**
-     * Quantidade desejada do item.
-     *
-     * <p>Assertiva de entrada: quantidade >= 1.
-     * <p>Assertiva de saída: quantidade persistida é sempre positiva.
-     */
-    @Min(1)
-    @Column(nullable = false)
-    @Builder.Default
+  /**
+   * Quantidade desejada do item.
+   *
+   * <p>Assertiva de entrada: quantidade >= 1.
+   *
+   * <p>Assertiva de saída: quantidade persistida é sempre positiva.
+   */
+  @Min(1)
+  @Column(nullable = false)
+  @Builder.Default
     private Integer quantidade = 1;
 
-    /**
-     * Indica se o item já foi colocado no carrinho durante a compra.
-     *
-     * <p>Assertiva de saída: comprado nunca é nulo; padrão false ao criar o item.
-     */
-    @Column(nullable = false)
-    @Builder.Default
+  /**
+   * Indica se o item já foi colocado no carrinho durante a compra.
+   *
+   * <p>Assertiva de saída: comprado nunca é nulo; padrão false ao criar o item.
+   */
+  @Column(nullable = false)
+  @Builder.Default
     private Boolean comprado = false;
 }

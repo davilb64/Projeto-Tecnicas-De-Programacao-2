@@ -3,6 +3,9 @@ package com.tp2.compras.dto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * Entidade DTO para adicionar item a lista.
+ **/
 public record ItemListaAdicionarDTO(
         @NotNull(message = "O ID da variação do produto é obrigatório")
         Long variacaoId,

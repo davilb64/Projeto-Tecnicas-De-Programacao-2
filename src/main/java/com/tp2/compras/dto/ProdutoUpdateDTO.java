@@ -2,6 +2,9 @@ package com.tp2.compras.dto;
 
 import jakarta.validation.constraints.Size;
 
+/**
+ * Entidade DTO para update de produto.
+ **/
 public record ProdutoUpdateDTO(
         @Size(max = 150, message = "O nome deve ter no máximo 150 caracteres")
         String nome,

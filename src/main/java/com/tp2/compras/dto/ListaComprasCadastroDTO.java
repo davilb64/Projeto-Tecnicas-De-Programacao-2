@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+/**
+ * DTO de cadastro de listas.
+ */
 public record ListaComprasCadastroDTO(
         @NotNull(message = "O ID do usuário é obrigatório")
         Long usuarioId,
