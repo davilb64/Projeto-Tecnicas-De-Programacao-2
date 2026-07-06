@@ -1,5 +1,11 @@
 -- Migration V5: Tabelas de listas de compras e itens
--- EU008: Eu como usuário quero poder criar, modificar e deletar listas de compras.
+-- EU008: Eu como usuário quero poder criar uma lista de compras em branco.
+-- EU009: Eu como usuário quero poder modificar uma lista de compras já criada.
+-- RQ019: O usuário pode criar uma lista de compras vazia com nome definido.
+-- RQ020: Cada lista pertence exclusivamente ao usuário que a criou (FK usuario_id NOT NULL).
+-- RQ021: O usuário pode adicionar itens (variações de produto) a uma lista.
+-- RQ022: Não é permitido adicionar o mesmo item duas vezes na mesma lista (UNIQUE lista_id + variacao_id).
+-- RQ023: A exclusão de uma lista remove automaticamente todos os seus itens (ON DELETE CASCADE).
 
 CREATE TABLE listas_compras (
     id           BIGSERIAL    PRIMARY KEY,
