@@ -1,0 +1,238 @@
+LEIAME - Sistema de Gerência de Compras e Compartilhamento de Preços
+Universidade de Brasília - Técnicas de Programação 2 - 1/2026
+======================================================================
+
+INTEGRANTES DO GRUPO
+----------------------------------------------------------------------
+- Davi Lopes Brito          (242023425)
+- João Vitor Lopes Rocha    (242014041)
+- Letícia Pimentel Garcia   (221016204)
+- Rômulo Uriel Liberal de Oliveira (242003880)
+- Valquíria dos Santos Machado     (242003807)
+
+======================================================================
+DESCRIÇÃO
+======================================================================
+API REST para gerência de compras e compartilhamento de preços entre
+usuários. Permite cadastro e login de usuários, gerência de produtos e
+estabelecimentos, listas de compras e comparação de preços por mercado.
+
+======================================================================
+TECNOLOGIAS UTILIZADAS
+======================================================================
+- Linguagem:    Java 17
+- Framework:    Spring Boot 3.3
+- ORM:          Spring Data JPA / Hibernate
+- Segurança:    Spring Security + JWT (Auth0 java-jwt 4.4.0)
+- Banco (prod): PostgreSQL 15+
+- Banco (test): H2 (em memória, modo PostgreSQL)
+- Migrações BD: Flyway
+- Build:        Maven 3.9+
+- Testes:       JUnit 5 + Mockito
+- Cobertura:    JaCoCo (mínimo 80%)
+- Análise est.: SpotBugs
+- Padrão cód.:  Google Java Style Guide (Checkstyle)
+- Documentação: maven-javadoc-plugin (estilo Doxygen/Javadoc)
+- Deploy:       Docker (Dockerfile incluído)
+
+Todas as bibliotecas utilizam licenças aprovadas:
+Apache License 2.0, MIT, EPL 2.0 / MPL 2.0.
+
+======================================================================
+PRÉ-REQUISITOS
+======================================================================
+1. Java 17 ou superior  (https://adoptium.net/)
+2. Maven 3.9 ou superior (https://maven.apache.org/)
+3. PostgreSQL 15 ou superior (https://www.postgresql.org/)
+   OU Docker instalado para rodar via contêiner
+
+======================================================================
+CONFIGURAÇÃO DO BANCO DE DADOS (execução local sem Docker)
+======================================================================
+1. Instale o PostgreSQL e crie o banco de dados:
+
+   psql -U postgres
+   CREATE DATABASE compras_db;
+   \q
+
+2. O banco será configurado pelas variáveis de ambiente abaixo.
+   Se não definidas, os valores padrão são utilizados:
+
+   DB_URL      = jdbc:postgresql://localhost:5432/compras_db
+   DB_USER     = postgres
+   DB_PASSWORD = (sua senha local do PostgreSQL)
+   JWT_SECRET  = local-pass
+
+   IMPORTANTE: A senha do banco é pessoal e NÃO deve ser compartilhada.
+   Cada membro do grupo usa a própria senha local do PostgreSQL.
+
+3. As tabelas são criadas automaticamente pelo Flyway ao iniciar o app.
+   Não é necessário criar tabelas manualmente.
+
+======================================================================
+COMO COMPILAR
+======================================================================
+Na raiz do projeto (onde está o pom.xml):
+
+   mvn clean compile
+
+Para compilar e rodar apenas os testes (usa H2, não precisa do PostgreSQL):
+
+   mvn clean test
+
+Para gerar o relatório de cobertura (JaCoCo):
+
+   mvn clean test
+   # Relatório gerado em: target/site/jacoco/index.html
+
+Para rodar análise estática (SpotBugs):
+
+   mvn spotbugs:check
+
+Para gerar a documentação Javadoc:
+
+   mvn javadoc:javadoc
+   # Documentação gerada em: target/site/apidocs/index.html
+
+Para gerar o JAR executável:
+
+   mvn clean package -DskipTests
+
+======================================================================
+COMO EXECUTAR (execução local sem Docker)
+======================================================================
+Opção A — com variáveis de ambiente explícitas:
+
+   DB_PASSWORD=suasenha mvn spring-boot:run
+
+Opção B — usando os valores padrão (senha 'postgres'):
+
+   mvn spring-boot:run
+
+A API estará disponível em: http://localhost:8080
+
+======================================================================
+COMO EXECUTAR (via Docker)
+======================================================================
+1. Construir a imagem:
+
+   docker build -t compras-api .
+
+2. Executar o contêiner (requer PostgreSQL acessível):
+
+   docker run -p 8080:8080 \
+     -e DB_URL=jdbc:postgresql://host.docker.internal:5432/compras_db \
+     -e DB_USER=postgres \
+     -e DB_PASSWORD=suasenha \
+     -e JWT_SECRET=sua-chave-secreta \
+     compras-api
+
+======================================================================
+ENDPOINTS DA API
+======================================================================
+Base URL: http://localhost:8080
+
+  Usuários:
+    POST   /api/usuarios/cadastro       Cadastrar novo usuário (EU001)
+    POST   /api/usuarios/login          Autenticar e obter token JWT (EU002)
+    GET    /api/usuarios/{id}           Buscar usuário por ID
+    PUT    /api/usuarios/{id}           Atualizar dados do usuário
+    DELETE /api/usuarios/{id}           Remover usuário
+
+  Estabelecimentos:
+    POST   /api/estabelecimentos/cadastro   Cadastrar estabelecimento (EU004)
+    GET    /api/estabelecimentos            Listar estabelecimentos
+    GET    /api/estabelecimentos/{id}       Buscar por ID
+    PUT    /api/estabelecimentos/{id}       Atualizar
+    DELETE /api/estabelecimentos/{id}       Remover
+
+  Produtos:
+    POST   /api/produtos/cadastro       Cadastrar produto (EU004, EU005, EU006)
+    GET    /api/produtos                Listar produtos (EU010)
+    GET    /api/produtos/pendentes      Listar pendentes de aprovação (EU005)
+    GET    /api/produtos/{id}           Buscar por ID
+    PUT    /api/produtos/{id}           Atualizar
+    DELETE /api/produtos/{id}           Remover
+
+  Variações de Produto:
+    POST   /api/variacoes/cadastro      Cadastrar variação (EU006)
+    GET    /api/variacoes/produto/{id}  Listar variações de um produto
+    GET    /api/variacoes/{id}          Buscar por ID
+    PUT    /api/variacoes/{id}          Atualizar
+    DELETE /api/variacoes/{id}          Remover
+
+  Listas de Compras:
+    POST   /api/listas                  Criar lista de compras (EU008)
+    GET    /api/listas                  Listar listas do usuário
+    GET    /api/listas/{id}             Buscar lista por ID
+    PUT    /api/listas/{id}             Atualizar lista (EU009)
+    DELETE /api/listas/{listaId}        Remover lista
+    POST   /api/listas/{listaId}/itens  Adicionar item à lista
+    DELETE /api/listas/itens/{itemId}   Remover item da lista
+    GET    /api/listas/{listaId}/comparacao  Comparar preços por mercado (EU011)
+
+  Preços:
+    POST   /api/precos/solicitar        Registrar preço em estabelecimento
+    GET    /api/precos/historico        Histórico de preços
+    GET    /api/precos/estimativa/{id}  Preço estimado para variação
+    GET    /api/precos/pendentes-admin  Preços pendentes de aprovação
+
+======================================================================
+ARQUIVOS INCLUÍDOS
+======================================================================
+  pom.xml                         Configuração do build Maven
+  Dockerfile                      Imagem Docker da aplicação
+  LEIAME.TXT                      Este arquivo
+  rastreamento_requisitos.txt     Matriz de rastreamento EU001-EU017
+  docs/                           Documentos do projeto (diagramas, PDFs)
+  Relatórios Individuais/         Relatórios de cada membro
+    RELATORIO-Davi.TXT
+    RELATORIO-Leticia.TXT
+    RELATORIO-Rômulo.TXT
+    RELATORIO-Valquíria.TXT
+  src/main/java/com/tp2/compras/
+    model/                        Entidades JPA
+    repository/                   Repositórios Spring Data
+    service/                      Regras de negócio
+    controller/                   Endpoints REST
+    dto/                          Objetos de transferência de dados
+    config/                       Configurações (Security, JWT)
+    exception/                    Exceções customizadas
+  src/main/resources/
+    application.properties        Configurações da aplicação
+    db/migration/                 Migrações Flyway (V1 a V5)
+  src/test/java/com/tp2/compras/  Testes automatizados (JUnit 5)
+  src/test/resources/
+    application-test.properties   Configuração de testes com H2
+
+======================================================================
+VERIFICADOR DINÂMICO (equivalente ao Valgrind)
+======================================================================
+Para Java, a JVM possui gerenciamento automático de memória via Garbage
+Collector, eliminando a classe de erros que o Valgrind detecta em C/C++
+(vazamentos de memória por alocação manual). O equivalente funcional é o
+VisualVM, incluído no JDK, que monitora uso de memória heap, threads e
+CPU em tempo de execução.
+
+Para usar o VisualVM durante a execução:
+1. Inicie o VisualVM:    jvisualvm   (terminal, dentro do JDK/bin)
+2. Execute a aplicação:  mvn spring-boot:run
+3. No VisualVM, selecione o processo "compras" e monitore:
+   - Heap Usage (uso de memória)
+   - Threads (concorrência)
+   - CPU Usage
+   - Garbage Collector activity
+
+======================================================================
+CONTROLE DE VERSÕES E GERENCIAMENTO
+======================================================================
+Repositório GitHub:
+  https://github.com/davilb64/Projeto-Tecnicas-De-Programacao-2
+
+Branches por sprint/funcionalidade:
+  main                             versão estável
+  feature/EU001-EU002-banco-sprint1
+  feature/EU003-EU008-banco-sprint2
+  (e demais branches das features dos colegas)
+
+======================================================================
