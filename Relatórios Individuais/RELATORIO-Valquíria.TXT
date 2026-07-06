@@ -6,4 +6,7 @@ Disciplina: Técnicas de Programação 2 - UnB - 1/2026
 Data       | Horas | Tipo Tarefa                         | Descrição
 ===============================================================================================================================================================================================================================================================
 14/06/2026 | 3h    | Desenvolvimento Telas (Front-End)   | Desenvolvimento de telas de login e cadastro que fariam requisições para o back-end.
+27/06/2026 | 3h    | Desenvolvimento Telas (Front-End)   | Desenvolvimento das telas de mercados e carrinho.
+28/06/2026 | 4h    | Refatorar as Telas (Front-End)      | Refatorando as telas: admin-produtos, listas, tela principal, mercados.
+05/07/2026 | 1h    | Projetos relacionados ao trabalho   | Ajudando nos testes e pdfs de entrega.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
