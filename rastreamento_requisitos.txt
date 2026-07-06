@@ -1,0 +1,245 @@
+RASTREAMENTO DE REQUISITOS
+Sistema de Gerência de Compras e Compartilhamento de Preços
+Técnicas de Programação 2 - UnB - 1/2026
+Referência dos diagramas: Trabalho_3___TP2.pdf
+Gerado em: 06/07/2026
+===============================================================================
+
+LEGENDA DE ARTEFATOS:
+  [BD]   Migration SQL (banco de dados)
+  [ENT]  Entidade JPA (model)
+  [REP]  Repositório (repository)
+  [SRV]  Service (regra de negócio)
+  [CTR]  Controller (endpoint REST)
+  [TST]  Teste automatizado
+  [DIA]  Diagrama de artefatos (Trabalho_3___TP2.pdf)
+
+OBSERVAÇÃO SOBRE TAGS NO CÓDIGO:
+  Os comentários EU001–EU008 presentes no código-fonte seguem a numeração
+  utilizada internamente no sprint. A tabela abaixo usa a numeração oficial
+  do backlog conforme definido no Trabalho 3.
+
+===============================================================================
+EU001 - Eu como usuário quero poder criar uma conta no site.
+===============================================================================
+[BD]   V1__create_usuarios_table.sql
+         Tabela: usuarios (id, nome, email, senha_hash, papel, criado_em)
+         Índice: idx_usuarios_email
+[ENT]  model/Usuario.java          →  campos id, nome, email, senhaHash, papel, criadoEm
+[ENT]  model/Papel.java            →  enum USUARIO, ADMINISTRADOR
+[REP]  repository/UsuarioRepository.java  →  existsByEmail(), save()
+[SRV]  service/UsuarioService.java        →  cadastrar()
+[CTR]  controller/UsuarioController.java  →  POST /api/usuarios/cadastro
+[TST]  repository/UsuarioRepositoryTest.java  →  deveSalvarNovoUsuario(),
+                                               deveRejeitarEmailDuplicado(),
+                                               deveDetectarEmailJaExistente(),
+                                               deveSalvarAdministrador()
+[TST]  service/UsuarioServiceTest.java    →  deveCadastrarUsuarioComSucesso(),
+                                            deveRejeitarEmailJaCadastrado()
+[DIA]  Figura 1 (p.3)  - Caso de Uso "Criar conta e Login"
+[DIA]  Tabela 9 (p.7)  - Ficha Descritiva "Criar conta e Login",
+                         Fluxo Alternativo 1a (Cadastro)
+[DIA]  Figura 3 (p.10) - Diagrama de Classes: classe Usuario, enum Papel
+[DIA]  Figura 4 (p.11) - Diagrama de Atividades: decisão "Login Válido?" /
+                         caminho "Fazer Login ou Criar Conta"
+
+===============================================================================
+EU002 - Eu como usuário quero poder fazer login no site se já possuo uma conta.
+===============================================================================
+[BD]   V1__create_usuarios_table.sql
+         Campo: senha_hash  |  Índice: idx_usuarios_email
+[ENT]  model/Usuario.java          →  campos email, senhaHash
+[REP]  repository/UsuarioRepository.java  →  findByEmail()
+[SRV]  service/UsuarioService.java        →  autenticar()
+[CTR]  controller/UsuarioController.java  →  POST /api/usuarios/login
+[TST]  repository/UsuarioRepositoryTest.java  →  deveEncontrarUsuarioPorEmail(),
+                                               deveRetornarVazioParaEmailNaoCadastrado()
+[TST]  service/UsuarioServiceTest.java    →  (fluxo de autenticação)
+[DIA]  Figura 1 (p.3)  - Caso de Uso "Criar conta e Login"
+[DIA]  Tabela 9 (p.7)  - Ficha Descritiva "Criar conta e Login", Fluxo Principal
+[DIA]  Figura 3 (p.10) - Diagrama de Classes: classe Usuario (campo senhaHash)
+[DIA]  Figura 4 (p.11) - Diagrama de Atividades: decisão "Login Válido?"
+
+===============================================================================
+EU003 - Eu como usuário quero ter um perfil com preferências e alergias a fim
+        de evitar produtos nocivos a mim.
+===============================================================================
+[ENT]  model/Usuario.java          →  campos nivel, xp, solicitacaoAdmin
+[REP]  repository/UsuarioRepository.java  →  findBySolicitacaoAdminTrueAndPapel()
+[SRV]  service/UsuarioService.java        →  (gestão de perfil)
+[CTR]  controller/UsuarioController.java  →  (endpoints de perfil)
+[TST]  service/UsuarioServiceTest.java    →  deveBuscarUsuarioPorId(),
+                                            deveAtualizarDadosDoUsuario(),
+                                            deveDeletarUsuario()
+[DIA]  Figura 1 (p.3)  - Caso de Uso "Gerenciar Perfil"
+[DIA]  Tabela 6 (p.6)  - Ficha Descritiva "Gerenciar Perfil"
+[DIA]  Figura 3 (p.10) - Diagrama de Classes: classe Usuario
+                         (campos: nivel, xp, solicitacaoAdmin)
+[DIA]  Figura 4 (p.11) - Diagrama de Atividades: "Preencher Preferências e Alergias"
+
+===============================================================================
+EU004 - Eu como administrador quero poder adicionar novos produtos e
+        estabelecimentos além de aceitar itens novos e estabelecimentos novos.
+===============================================================================
+[BD]   V2__create_estabelecimentos_table.sql
+         Tabela: estabelecimentos (id, nome, endereco, latitude, longitude,
+                                   aprovado, criado_em)
+[BD]   V3__create_produtos_table.sql
+         Tabela: produtos (id, nome, descricao, categoria, codigo_barras,
+                           status, criado_em)
+         Tipo:   status_produto_enum (PENDENTE, APROVADO, REJEITADO)
+[ENT]  model/Estabelecimento.java  →  campos id, nome, endereco, aprovado
+[ENT]  model/Produto.java          →  campos id, nome, categoria, status
+[ENT]  model/StatusProduto.java    →  enum PENDENTE, APROVADO, REJEITADO
+[REP]  repository/EstabelecimentoRepository.java  →  existsByNome(), save(), delete(),
+                                                     findAllAprovados()
+[REP]  repository/ProdutoRepository.java          →  findByStatus(), save(), delete()
+[SRV]  service/EstabelecimentoService.java
+[SRV]  service/ProdutoService.java
+[CTR]  controller/ProdutoController.java          →  POST /api/produtos/cadastro
+[TST]  repository/EstabelecimentoRepositoryTest.java  →  deveSalvarEstabelecimento(),
+                                                        deveDeletarEstabelecimento()
+[TST]  repository/ProdutoRepositoryTest.java      →  deveSalvarProdutoComStatusPendente(),
+                                                     deveFiltrarProdutosPorStatus()
+[DIA]  Figura 1 (p.3)  - Caso de Uso "Aprovar Produtos e Estabelecimentos"
+[DIA]  Tabela 12 (p.9) - Ficha Descritiva "Aprovar Produtos e Estabelecimentos"
+[DIA]  Figura 3 (p.10) - Diagrama de Classes: classes Produto, Estabelecimento,
+                         enum StatusProduto
+[DIA]  Figura 4 (p.11) - Diagrama de Atividades: "Analisar Sugestão de
+                         Produto/Estabelecimento" → "Aprovar o Cadastro?"
+
+===============================================================================
+EU005 - Eu como usuário quero poder adicionar produtos para um administrador
+        analisar aprovação.
+===============================================================================
+[ENT]  model/Produto.java          →  campo status = PENDENTE (padrão)
+[ENT]  model/StatusProduto.java    →  PENDENTE
+[REP]  repository/ProdutoRepository.java  →  findByStatus(StatusProduto.PENDENTE)
+[SRV]  service/ProdutoService.java        →  submeter produto para aprovação
+[CTR]  controller/ProdutoController.java  →  POST /api/produtos/cadastro
+[TST]  repository/ProdutoRepositoryTest.java  →  deveSalvarProdutoComStatusPendente()
+[DIA]  Figura 1 (p.3)  - Caso de Uso "Solicitar Aprovação"
+[DIA]  Tabela 11 (p.8) - Ficha Descritiva "Solicitar Aprovação",
+                         Fluxo Principal: gravação com flag PENDENTE
+[DIA]  Figura 3 (p.10) - Diagrama de Classes: enum StatusProduto (PENDENTE),
+                         classe Produto (campo status)
+
+===============================================================================
+EU006 - Eu como usuário e administrador quero poder iniciar o cadastro de um
+        produto através do código de barras.
+===============================================================================
+[BD]   V3__create_produtos_table.sql
+         Campo: codigo_barras VARCHAR UNIQUE
+         Índice: idx_produtos_codigo_barras
+[BD]   V4__create_variacoes_produto_table.sql
+         Campo: codigo_barras VARCHAR UNIQUE em variacoes_produto
+[ENT]  model/Produto.java          →  campo codigoBarras
+[ENT]  model/VariacaoProduto.java  →  campo codigoBarras, peso, unidade
+[REP]  repository/ProdutoRepository.java          →  findByCodigoBarras()
+[REP]  repository/VariacaoProdutoRepository.java  →  findByCodigoBarras()
+[SRV]  service/VariacaoProdutoService.java
+[TST]  repository/ProdutoRepositoryTest.java  →  deveEncontrarPorCodigoDeBarras()
+[DIA]  Figura 1 (p.3)  - Caso de Uso "Iniciar Cadastro via Código de Barras"
+[DIA]  Tabela 10 (p.8) - Ficha Descritiva "Iniciar Cadastro via Código de Barras"
+[DIA]  Figura 3 (p.10) - Diagrama de Classes: campo codigoBarras em Produto
+                         e VariacaoProduto
+[DIA]  Figura 4 (p.11) - Diagrama de Atividades: "Buscar Produto ou Ler
+                         Código de Barras"
+
+===============================================================================
+EU007 - Eu como usuário e administrador quero receber um aviso (de existência
+        ou não existência do produto) se eu tentar cadastrar um produto já
+        existente.
+===============================================================================
+[BD]   V3__create_produtos_table.sql   →  UNIQUE em codigo_barras
+[BD]   V4__create_variacoes_produto_table.sql  →  UNIQUE em codigo_barras
+[REP]  repository/ProdutoRepository.java          →  existsByCodigoBarras()
+[REP]  repository/VariacaoProdutoRepository.java  →  existsByCodigoBarras()
+[REP]  repository/EstabelecimentoRepository.java  →  existsByNome()
+[SRV]  service/ProdutoService.java   →  validação de duplicidade antes do save
+[CTR]  controller/ProdutoController.java  →  resposta HTTP 409 em conflito
+[TST]  repository/ProdutoRepositoryTest.java  →  deveDetectarCodigoBarrasDuplicado()
+[TST]  repository/EstabelecimentoRepositoryTest.java  →  deveDetectarNomeDuplicado()
+[DIA]  Figura 1 (p.3)  - Caso de Uso "Validar Existência do Produto"
+[DIA]  Tabela 2 (p.4)  - Ficha Descritiva "Validar Existência do Produto"
+[DIA]  Tabela 11 (p.8) - Ficha Descritiva "Solicitar Aprovação",
+                         Fluxo Alternativo 2a (Conflito de Nomes)
+
+===============================================================================
+EU008 - Eu como usuário quero poder criar uma lista de compras em branco.
+===============================================================================
+[BD]   V5__create_listas_compras_table.sql
+         Tabela: listas_compras (id, usuario_id, nome, criado_em, atualizado_em)
+[ENT]  model/ListaCompras.java    →  campos id, usuario, nome, criadoEm
+[REP]  repository/ListaComprasRepository.java  →  findByUsuarioId(), save()
+[TST]  repository/ListaComprasRepositoryTest.java  →  deveCriarListaDeCompras(),
+                                                      deveBuscarListasDoUsuario(),
+                                                      deveVerificarPropriedadeDaLista()
+[DIA]  Figura 1 (p.3)  - Caso de Uso "Gerenciar Listas de Compras"
+[DIA]  Tabela 7 (p.6)  - Ficha Descritiva "Gerenciar Listas de Compras",
+                         Fluxo Principal (criação de lista vazia)
+[DIA]  Figura 3 (p.10) - Diagrama de Classes: classe ListaCompras
+[DIA]  Figura 4 (p.11) - Diagrama de Atividades: "Criar Nova Lista de Compras"
+
+===============================================================================
+EU009 - Eu como usuário quero poder modificar uma lista de compras já criada.
+===============================================================================
+[BD]   V5__create_listas_compras_table.sql
+         Tabela: itens_lista (id, lista_id, variacao_produto_id, quantidade,
+                              comprado)
+         Campo: atualizado_em em listas_compras
+[ENT]  model/ListaCompras.java   →  campo atualizadoEm, lista de itens
+[ENT]  model/ItemLista.java      →  campos id, lista, variacaoProduto,
+                                    quantidade, comprado
+[REP]  repository/ListaComprasRepository.java  →  existsByIdAndUsuarioId()
+[REP]  repository/ItemListaRepository.java     →  findByListaId(),
+                                                  existsByListaIdAndVariacaoProdutoId()
+[TST]  repository/ListaComprasRepositoryTest.java  →  deveAdicionarItemEDetectarDuplicata(),
+                                                      deveDeletarListaEItensEmCascata()
+[DIA]  Figura 1 (p.3)  - Caso de Uso "Gerenciar Listas de Compras"
+[DIA]  Tabela 7 (p.6)  - Ficha Descritiva "Gerenciar Listas de Compras",
+                         Fluxo Principal (inserção de itens) e
+                         Fluxo Alternativo 2a (exclusão de lista)
+[DIA]  Figura 3 (p.10) - Diagrama de Classes: classes ListaCompras e ItemLista
+
+===============================================================================
+EU010 - Eu como usuário quero filtrar entre os produtos cadastrados por:
+        mercado, nome, categoria, preço etc.
+===============================================================================
+[REP]  repository/ProdutoRepository.java          →  findByNomeContaining(),
+                                                     findByCategoria(),
+                                                     findByStatus()
+[REP]  repository/EstabelecimentoRepository.java  →  findByNomeContaining(),
+                                                     findAllAprovados()
+[SRV]  service/EstabelecimentoService.java        →  busca por nome
+[TST]  repository/ProdutoRepositoryTest.java  →  deveBuscarProdutosPorNomeParcial(),
+                                               deveFiltrarPorCategoria()
+[TST]  repository/EstabelecimentoRepositoryTest.java  →  deveBuscarPorNomeParcial()
+[DIA]  Figura 1 (p.3)  - Caso de Uso "Filtrar Produtos"
+[DIA]  Tabela 5 (p.5)  - Ficha Descritiva "Filtrar Produtos"
+[DIA]  Figura 3 (p.10) - Diagrama de Classes: métodos findByNomeContaining,
+                         findByCategoria em Produto e Estabelecimento
+[DIA]  Figura 4 (p.11) - Diagrama de Atividades: "Filtrar Mercados por
+                         Proximidade" / "Filtrar Produtos Nocivos/Alérgicos"
+
+===============================================================================
+ESTÓRIAS NÃO IMPLEMENTADAS NESTE SPRINT
+(EU011–EU017: escopo de sprints futuras)
+===============================================================================
+EU011 - Consultar valores nos mercados próximos
+        [DIA] Fig.1 "Consultar Preços e Mercados" / Tabela 4
+EU012 - Mercados próximos por geolocalização
+        [DIA] Fig.1 "Consultar Preços e Mercados" / Tabela 4 (Fluxo Alt. GPS)
+EU013 - Histórico de listas
+EU014 - Compartilhar itens via link
+        [DIA] Fig.1 "Compartilhar Itens" / Tabela 1
+EU015 - Sugestões de listas baseadas em histórico
+        [DIA] Fig.1 "Receber Sugestões" / Tabela 3
+EU016 - Notificações de descontos
+EU017 - Pontos XP e promoção a administrador
+        [DIA] Fig.1 "Acumular Pontos XP" / Tabela 8
+        [DIA] Fig.3 Diagrama de Classes: campos nivel, xp em Usuario
+        [DIA] Fig.4 Diagrama de Atividades: "Atribuir Pontos XP ao Usuário" →
+              "Atingiu Novo Máximo?" → "Promover Usuário a Administrador"
+
+===============================================================================
