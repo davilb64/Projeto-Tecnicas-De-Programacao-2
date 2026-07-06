@@ -1,0 +1,9 @@
+com.tp2.compras
+com.tp2.compras.config
+com.tp2.compras.controller
+com.tp2.compras.dto
+com.tp2.compras.exception
+com.tp2.compras.infra.security
+com.tp2.compras.model
+com.tp2.compras.repository
+com.tp2.compras.service
